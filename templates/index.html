@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="csv_file">Загрузите CSV с данными:</label>
+        <input type="file" name="csv_file" id="csv_file" class="form-control-file">
+    </div>
+    <button type="submit" class="btn btn-primary">Загрузить файл</button>
+</form>
+
+{% if products %}
+    <hr>
+    <form method="POST" action="{{ url_for('train') }}">
+        <div class="form-group">
+            <label for="product">Выберите товар:</label>
+            <select name="product" id="product" class="form-control">
+                {% for prod in products %}
+                    <option value="{{ prod }}">{{ prod }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Обучить модель</button>
+    </form>
+
+    <hr>
+    <form method="POST" action="{{ url_for('forecast') }}">
+        <div class="form-group">
+            <label for="periods">Количество месяцев для прогноза:</label>
+            <input type="number" name="periods" id="periods" class="form-control" value="6" min="1" max="36">
+        </div>
+        <button type="submit" class="btn btn-warning">Сделать прогноз</button>
+    </form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Диагностика модели</h2>
+<p>Ниже представлен диагностический график остатков:</p>
+<img src="{{ diag_image }}" alt="Диагностика модели" class="img-fluid">
+<a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Вернуться на главную</a>
+{% endblock %}
