@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Просмотр CSV и применение скрипта (c подсветкой синтаксиса)</h2>
+
+<form method="POST" class="row g-3 mb-3">
+  <div class="col-md-4">
+    <label class="form-label">CSV-файл:</label>
+    <select name="csv_filename" class="form-select">
+      <option value="" disabled>-- выберите CSV --</option>
+      {% for df in data_files %}
+        <option value="{{ df }}"
+          {% if df == selected_csv %}selected{% endif %}
+        >{{ df }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Скрипт (опционально):</label>
+    <select name="script_name" class="form-select">
+      <option value="none" {% if not selected_script or selected_script == "none" %}selected{% endif %}>-- без скрипта --</option>
+      {% for sf in script_files %}
+        <option value="{{ sf }}"
+          {% if sf == selected_script %}selected{% endif %}
+        >{{ sf }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-4 align-self-end">
+    <button type="submit" class="btn btn-primary">Показать данные</button>
+  </div>
+</form>
+
+{% if script_content %}
+<hr>
+<h5>Текст скрипта: {{ selected_script }}</h5>
+
+<!-- 1) Подключаем CSS стили от Pygments -->
+<style>
+/* highlight_style генерируется Pygments (formatter.get_style_defs('.highlight')) */
+{{ highlight_style|safe }}
+.highlight {
+  background-color: #1e1e1e !important;
+  color: #ffffff;
+  padding: 1em;
+  border-radius: 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.95rem;
+  overflow-x: auto;
+}
+</style>
+
+<!-- 2) Выводим HTML-код с подсветкой -->
+<div class="highlight bg-dark p-2" style="max-height:400px; overflow:auto;">
+  {{ highlighted_code|safe }}
+</div>
+{% endif %}
+
+{% if message %}
+<div class="alert alert-info" style="margin-top: 20px;">{{ message }}</div>
+{% endif %}
+
+<div class="row">
+  <div class="col-md-6">
+    <h5>Исходные данные (Raw)</h5>
+    {% if raw_html %}
+      <div class="table-responsive">
+        {{ raw_html|safe }}
+      </div>
+    {% else %}
+      <p class="text-muted">Нет данных для отображения.</p>
+    {% endif %}
+  </div>
+
+  <div class="col-md-6">
+    <h5>Преобразованные данные (Transformed)</h5>
+    {% if transformed_html %}
+      <div class="table-responsive">
+        {{ transformed_html|safe }}
+      </div>
+    {% else %}
+      <p class="text-muted">Скрипт не применялся или данные не получены.</p>
+    {% endif %}
+  </div>
+</div>
+
+
+{% endblock %}
