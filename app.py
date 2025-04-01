@@ -9,7 +9,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from flask import Flask, request, render_template, redirect, url_for
-from sklearn.metrics import mean_squared_error
 import numpy as np
 
 ###############################################################################
@@ -317,77 +316,135 @@ def predict():
 ###############################################################################
 @app.route("/metrics", methods=["GET", "POST"])
 def metrics():
+	# Собираем списки файлов
 	data_files = [f for f in os.listdir(app.config["UPLOAD_FOLDER"]) if f.endswith(".csv")]
 	model_files = [m[:-4] for m in os.listdir(app.config["MODEL_FOLDER"]) if m.endswith(".pkl")]
-	script_files = get_script_list()
+	script_files = get_script_list()  # функция, которая возвращает список .py из SCRIPT_FOLDER
 
 	if request.method == "POST":
+		# 1) Считываем поля формы
 		csv_filename = request.form.get("csv_filename")
-		script_name = request.form.get("script_name")
+		script_name = request.form.get("script_name")  # имя скрипта (.py) или "none"
 		date_col = request.form.get("date_col")
 		target_col = request.form.get("target_col")
 		model_name = request.form.get("model_name")
 		test_size = float(request.form.get("test_size", 0.2))
 
+		# 2) Проверяем наличие CSV
 		filepath = os.path.join(app.config["UPLOAD_FOLDER"], csv_filename)
 		if not os.path.exists(filepath):
-			return render_template("metrics.html",
-			                       message=f"Файл {csv_filename} не найден!",
-			                       metrics_dict=None,
-			                       data_files=data_files,
-			                       model_files=model_files,
-			                       script_files=script_files)
+			return render_template(
+				"metrics.html",
+				message=f"Файл {csv_filename} не найден!",
+				metrics_dict=None,
+				data_files=data_files,
+				model_files=model_files,
+				script_files=script_files
+			)
 
+		# 3) Проверяем наличие модели
 		model_path = os.path.join(app.config["MODEL_FOLDER"], f"{model_name}.pkl")
 		if not os.path.exists(model_path):
-			return render_template("metrics.html",
-			                       message=f"Модель {model_name} не найдена!",
-			                       metrics_dict=None,
-			                       data_files=data_files,
-			                       model_files=model_files,
-			                       script_files=script_files)
+			return render_template(
+				"metrics.html",
+				message=f"Модель {model_name} не найдена!",
+				metrics_dict=None,
+				data_files=data_files,
+				model_files=model_files,
+				script_files=script_files
+			)
 
-		# Загружаем CSV
+		# 4) Загружаем CSV
 		df = pd.read_csv(filepath)
-		# Применяем скрипт
+		print("[DEBUG] CSV loaded. df.shape =", df.shape)
+
+		# 5) Применяем пользовательский скрипт (если выбран)
 		if script_name and script_name != "none":
 			script_path = os.path.join(app.config["SCRIPT_FOLDER"], script_name)
+			df_before = df.copy()
 			df = apply_transform(df, script_path)
+			print("[DEBUG] Script applied:", script_name)
+			print("     Before:", df_before.shape, "After:", df.shape)
 
-		# Проверка
+		# 6) Проверяем наличие нужных столбцов
 		if date_col not in df.columns or target_col not in df.columns:
-			return render_template("metrics.html",
-			                       message=f"Нет {date_col}/{target_col} в данных!",
-			                       metrics_dict=None,
-			                       data_files=data_files,
-			                       model_files=model_files,
-			                       script_files=script_files)
+			return render_template(
+				"metrics.html",
+				message=f"Нет {date_col} или {target_col} в данных!",
+				metrics_dict=None,
+				data_files=data_files,
+				model_files=model_files,
+				script_files=script_files
+			)
 
-		df[date_col] = pd.to_datetime(df[date_col])
+		# 7) Преобразуем даты, сортируем
+		df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
 		df.sort_values(by=date_col, inplace=True)
-		ts = df.set_index(date_col)[target_col]
+		print(f"[DEBUG] date_col='{date_col}' parsed, sorted by date.")
 
-		# train/test split
+		# Убедимся, что нет NaN в датах:
+		df = df.dropna(subset=[date_col])
+		print("[DEBUG] Dropped rows with NaN in date_col. df.shape =", df.shape)
+
+		# 8) Формируем Series
+		ts = df.set_index(date_col)[target_col]
+		print("[DEBUG] Final ts.shape =", ts.shape)
+
+		# 9) Разделяем на train/test
 		n = len(ts)
 		split_idx = int(n * (1 - test_size))
 		train_data = ts.iloc[:split_idx]
 		test_data = ts.iloc[split_idx:]
 
-		# Загружаем модель
+		print(f"[DEBUG] train_data: {train_data.shape}, test_data: {test_data.shape}")
+
+		# 10) Загружаем модель
 		with open(model_path, "rb") as f:
 			arima_model = pickle.load(f)
+		print("[DEBUG] Model loaded:", model_name)
 
-		# Переобучаем на train (для корректных метрик)
+		# 11) Переобучаем на train
 		arima_model.fit(train_data)
+		print("[DEBUG] Model re-fitted on train_data")
 
-		# Прогноз
+		# 12) Прогнозируем на длину test_data
 		forecast_vals = arima_model.predict(n_periods=len(test_data))
+		print("[DEBUG] forecast_vals len:", len(forecast_vals))
+		print("[DEBUG] test_data len:", len(test_data))
+
+		# Формируем Series с тем же индексом, что у test_data
 		forecast_series = pd.Series(forecast_vals, index=test_data.index)
 
-		# Подсчитываем MSE, RMSE, MAPE
+		# 13) Отладочные принты индексов
+		print("[DEBUG] test_data index:", test_data.index)
+		print("[DEBUG] forecast_series index:", forecast_series.index)
+
+		common_index = test_data.index.intersection(forecast_series.index)
+		print("[DEBUG] Intersection index length:", len(common_index))
+
+		# 14) Можно (необязательно) явно выровнять и удалить NaN
+		test_data = test_data.loc[common_index].dropna()
+		forecast_series = forecast_series.loc[common_index].dropna()
+
+		print("[DEBUG] After alignment, len(test_data) =", len(test_data))
+		print("[DEBUG] After alignment, len(forecast_series) =", len(forecast_series))
+
+		if len(test_data) == 0 or len(forecast_series) == 0:
+			return render_template(
+				"metrics.html",
+				message="Нет валидных точек для расчёта метрик (пересечение пусто или NaN).",
+				metrics_dict=None,
+				data_files=data_files,
+				model_files=model_files,
+				script_files=script_files
+			)
+
+		# 15) Считаем метрики
+		from sklearn.metrics import mean_squared_error
 		mse_value = mean_squared_error(test_data, forecast_series)
 		rmse_value = np.sqrt(mse_value)
-		# Если в test_data нет нулей
+
+		# (Если есть нули в test_data, MAPE может быть некорректен)
 		mape_value = np.mean(np.abs((test_data - forecast_series) / test_data)) * 100
 
 		metrics_dict = {
@@ -396,20 +453,24 @@ def metrics():
 			"MAPE (%)": round(mape_value, 3)
 		}
 
-		return render_template("metrics.html",
-		                       message="Метрики успешно рассчитаны!",
-		                       metrics_dict=metrics_dict,
-		                       data_files=data_files,
-		                       model_files=model_files,
-		                       script_files=script_files)
+		return render_template(
+			"metrics.html",
+			message="Метрики успешно рассчитаны!",
+			metrics_dict=metrics_dict,
+			data_files=data_files,
+			model_files=model_files,
+			script_files=script_files
+		)
 
-	# GET
-	return render_template("metrics.html",
-	                       message=None,
-	                       metrics_dict=None,
-	                       data_files=data_files,
-	                       model_files=model_files,
-	                       script_files=script_files)
+	# GET-запрос -> форма
+	return render_template(
+		"metrics.html",
+		message=None,
+		metrics_dict=None,
+		data_files=data_files,
+		model_files=model_files,
+		script_files=script_files
+	)
 
 
 ###############################################################################
