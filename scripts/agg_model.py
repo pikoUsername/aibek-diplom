@@ -1,0 +1,1 @@
+df['Date'] = pd.to_datetime(df['Date'], format='%m/%d/%Y')df = df.groupby('Date')['Total'].sum().reset_index()print("Columns after transform:", df.columns)

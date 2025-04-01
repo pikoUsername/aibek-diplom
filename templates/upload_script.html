@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Загрузить/Создать пользовательский скрипт</h2>
+
+{% if message %}
+  <div class="alert alert-info">{{ message }}</div>
+{% endif %}
+
+<form method="POST" class="mb-3">
+  <div class="mb-3">
+    <label class="form-label">Имя скрипта (опционально, без .py тоже можно)</label>
+    <input type="text" name="script_name" class="form-control" placeholder="my_transform" />
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Код скрипта (Python):</label>
+    <textarea name="script_code" rows="10" class="form-control" placeholder="Напишите здесь Python код..."></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Сохранить скрипт</button>
+</form>
+
+<p>Пример кода, который вы можете вставить:</p>
+<pre>
+# Например, добавим новый столбец
+# или агрегируем данные по дате:
+df['Date'] = pd.to_datetime(df['Date'])
+df = df.groupby('Date')['Total'].sum().reset_index()
+</pre>
+{% endblock %}

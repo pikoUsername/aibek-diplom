@@ -5,28 +5,67 @@ import uuid
 import matplotlib
 import pandas as pd
 
-matplotlib.use('Agg')  # Чтобы не требовался дисплей (если запускаетесь на сервере)
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from flask import Flask, request, render_template
-from pmdarima.arima import auto_arima
+from flask import Flask, request, render_template, redirect, url_for
 from sklearn.metrics import mean_squared_error
 import numpy as np
 
+###############################################################################
+# ИНИЦИАЛИЗАЦИЯ FLASK
+###############################################################################
 app = Flask(__name__)
+
 app.config["UPLOAD_FOLDER"] = "./data"
 app.config["MODEL_FOLDER"] = "./models"
 app.config["PLOT_FOLDER"] = "./static/plots"
+app.config["SCRIPT_FOLDER"] = "./scripts"
 
-# Убедимся, что нужные папки существуют
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 os.makedirs(app.config["MODEL_FOLDER"], exist_ok=True)
 os.makedirs(app.config["PLOT_FOLDER"], exist_ok=True)
+os.makedirs(app.config["SCRIPT_FOLDER"], exist_ok=True)
 
 
-##############################################################################
-# Главная страница (загрузка файла + обзор)
-##############################################################################
+###############################################################################
+# ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ: ПРИМЕНЯЕМ ПОЛЬЗОВАТЕЛЬСКИЙ СКРИПТ
+###############################################################################
+def apply_transform(df: pd.DataFrame, script_path: str) -> pd.DataFrame:
+	if not os.path.exists(script_path):
+		return df
+
+	# хотим дать скрипту доступ к pd, np, и т.д.
+	import numpy as np
+	global_env = {
+		"__builtins__": __builtins__,  # чтобы скрипт мог сам import-ить всё подряд
+		"pd": pd,
+		"np": np,
+		# если хотите, можно добавлять ещё что-то:
+		# "math": math,
+		# "datetime": datetime,
+		# ...
+	}
+	local_env = {"df": df}  # локальное окружение — куда запишется обновлённая df
+
+	with open(script_path, "r", encoding="utf-8") as f:
+		code = f.read()
+
+	exec(code, global_env, local_env)
+
+	return local_env.get("df", df)
+
+
+def get_script_list():
+	"""
+	Получаем список всех .py-файлов в папке scripts (чтобы пользователь мог выбрать).
+	"""
+	return [f for f in os.listdir(app.config["SCRIPT_FOLDER"]) if f.endswith(".py")]
+
+
+###############################################################################
+# ГЛАВНАЯ СТРАНИЦА: ЗАГРУЗКА CSV
+###############################################################################
 @app.route("/", methods=["GET", "POST"])
 def index():
 	if request.method == "POST":
@@ -35,73 +74,139 @@ def index():
 			filename = file.filename
 			filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
 			file.save(filepath)
-
-			# Простейший пример ETL:
+			# Простая ETL
 			df = pd.read_csv(filepath)
 			df.dropna(inplace=True)
 			df.to_csv(filepath, index=False)
 
 			return render_template("index.html",
-			                       message=f"Файл '{filename}' успешно загружен и сохранён!")
+			                       message=f"Файл '{filename}' успешно загружен!")
 	return render_template("index.html", message=None)
 
 
-##############################################################################
-# Обучение новой SARIMA модели
-##############################################################################
+###############################################################################
+# РОУТ ДЛЯ ЗАГРУЗКИ СКРИПТА
+###############################################################################
+@app.route("/upload_script", methods=["GET", "POST"])
+def upload_script():
+	"""
+	Пользователь может вставить Python-код, который будет сохраняться как .py-файл.
+	"""
+	if request.method == "POST":
+		script_code = request.form.get("script_code")
+		script_name = request.form.get("script_name")
+
+		# Если не указано имя, генерируем
+		if not script_name:
+			script_name = f"script_{uuid.uuid4().hex}"
+		if not script_name.endswith(".py"):
+			script_name += ".py"
+
+		script_path = os.path.join(app.config["SCRIPT_FOLDER"], script_name)
+		with open(script_path, "w", encoding="utf-8") as f:
+			f.write(script_code)
+
+		return render_template("upload_script.html",
+		                       message=f"Скрипт '{script_name}' сохранён!")
+
+	return render_template("upload_script.html", message=None)
+
+
+###############################################################################
+# ОБУЧЕНИЕ SARIMA (/train)
+###############################################################################
 @app.route("/train", methods=["GET", "POST"])
 def train_sarima():
+	data_files = [f for f in os.listdir(app.config["UPLOAD_FOLDER"]) if f.endswith(".csv")]
+	script_files = get_script_list()  # список .py-скриптов
+
 	if request.method == "POST":
 		csv_filename = request.form.get("csv_filename")
+		script_name = request.form.get("script_name")  # выбранный скрипт
 		date_col = request.form.get("date_col")
 		target_col = request.form.get("target_col")
-		model_name = request.form.get("model_name")
+		model_name = request.form.get("model_name", f"model_{uuid.uuid4().hex}")
 
 		filepath = os.path.join(app.config["UPLOAD_FOLDER"], csv_filename)
 		if not os.path.exists(filepath):
 			return render_template("train.html",
-			                       message=f"Файл {csv_filename} не найден!")
+			                       message=f"Файл {csv_filename} не найден!",
+			                       data_files=data_files,
+			                       script_files=script_files)
 
-		# Читаем DataFrame
+		# Загружаем CSV
 		df = pd.read_csv(filepath)
+		# Применяем пользовательский скрипт, если выбран
+		if script_name and script_name != "none":
+			script_path = os.path.join(app.config["SCRIPT_FOLDER"], script_name)
+			df = apply_transform(df, script_path)
+
+		# Проверяем нужные столбцы
 		if date_col not in df.columns or target_col not in df.columns:
 			return render_template("train.html",
-			                       message="Указанных столбцов нет в датафрейме!")
+			                       message=f"Нет {date_col} или {target_col} в данных!",
+			                       data_files=data_files,
+			                       script_files=script_files)
 
-		# Преобразуем столбец с датами
+		# Приводим дату к datetime, упорядочиваем
 		df[date_col] = pd.to_datetime(df[date_col])
 		df.sort_values(by=date_col, inplace=True)
 		ts = df.set_index(date_col)[target_col]
 
-		# Обучаем auto_arima
+		# Пробуем "заставить" auto_arima искать более сложную модель
+		from pmdarima.arima import auto_arima
+
 		arima_model = auto_arima(
 			ts,
+			start_p=1,  # начальные значения p, q
+			start_q=1,
+			max_p=3,  # максимально 3
+			max_q=3,
+			d=1,  # форсируем хотя бы первую разность
+			start_P=1,  # для сезонной части
+			start_Q=1,
+			max_P=2,
+			max_Q=2,
+			D=1,  # форсируем сезонную разность
 			seasonal=True,
-			m=7,  # пример: недельная сезонность
-			trace=True,
+			m=7,  # если данные ежедневные и есть недельная сезонность
+			stepwise=True,  # пусть пошагово перебирает
+			approximation=False,
+			trace=True,  # чтобы видеть в консоли, что он перебирает
 			error_action='ignore',
 			suppress_warnings=True
 		)
 		arima_model.fit(ts)
 
-		# Сериализуем модель
+		# Сохраняем модель
 		model_path = os.path.join(app.config["MODEL_FOLDER"], f"{model_name}.pkl")
 		with open(model_path, "wb") as f:
 			pickle.dump(arima_model, f)
 
 		return render_template("train.html",
-		                       message=f"Модель '{model_name}' успешно обучена и сохранена!")
+		                       message=f"Модель '{model_name}' обучена и сохранена!",
+		                       data_files=data_files,
+		                       script_files=script_files)
 
-	return render_template("train.html", message=None)
+	# GET
+	return render_template("train.html",
+	                       message=None,
+	                       data_files=data_files,
+	                       script_files=script_files)
 
 
-##############################################################################
-# Предсказание и построение графика
-##############################################################################
+###############################################################################
+# ПРЕДСКАЗАНИЕ (/predict)
+###############################################################################
 @app.route("/predict", methods=["GET", "POST"])
 def predict():
+	data_files = [f for f in os.listdir(app.config["UPLOAD_FOLDER"]) if f.endswith(".csv")]
+	model_files = [m[:-4] for m in os.listdir(app.config["MODEL_FOLDER"]) if m.endswith(".pkl")]
+	script_files = get_script_list()
+
 	if request.method == "POST":
 		csv_filename = request.form.get("csv_filename")
+		script_name = request.form.get("script_name")
 		date_col = request.form.get("date_col")
 		target_col = request.form.get("target_col")
 		model_name = request.form.get("model_name")
@@ -111,16 +216,36 @@ def predict():
 		if not os.path.exists(filepath):
 			return render_template("predict.html",
 			                       message=f"Файл {csv_filename} не найден!",
-			                       plot_filename=None)
+			                       plot_filename=None,
+			                       data_files=data_files,
+			                       model_files=model_files,
+			                       script_files=script_files)
 
 		model_path = os.path.join(app.config["MODEL_FOLDER"], f"{model_name}.pkl")
 		if not os.path.exists(model_path):
 			return render_template("predict.html",
 			                       message=f"Модель {model_name} не найдена!",
-			                       plot_filename=None)
+			                       plot_filename=None,
+			                       data_files=data_files,
+			                       model_files=model_files,
+			                       script_files=script_files)
 
 		# Загружаем CSV
 		df = pd.read_csv(filepath)
+		# Применяем пользовательский скрипт
+		if script_name and script_name != "none":
+			script_path = os.path.join(app.config["SCRIPT_FOLDER"], script_name)
+			df = apply_transform(df, script_path)
+
+		# Проверка столбцов
+		if date_col not in df.columns or target_col not in df.columns:
+			return render_template("predict.html",
+			                       message=f"Нет {date_col}/{target_col} в данных!",
+			                       plot_filename=None,
+			                       data_files=data_files,
+			                       model_files=model_files,
+			                       script_files=script_files)
+
 		df[date_col] = pd.to_datetime(df[date_col])
 		df.sort_values(by=date_col, inplace=True)
 		ts = df.set_index(date_col)[target_col]
@@ -130,44 +255,75 @@ def predict():
 			arima_model = pickle.load(f)
 
 		# Предсказываем
-		forecast = arima_model.predict(n_periods=forecast_steps)
-
-		# Генерируем даты для прогноза
+		forecast_values = arima_model.predict(n_periods=forecast_steps)
 		last_date = ts.index[-1]
 		future_dates = pd.date_range(start=last_date, periods=forecast_steps + 1, freq='D')[1:]
+		forecast_series = pd.Series(forecast_values, index=future_dates)
 
-		# Строим график
+		# Рисуем график
 		plt.figure(figsize=(10, 5))
-		plt.plot(ts, label="Исходные данные")
-		plt.plot(future_dates, forecast, color="red", label="Прогноз")
+		plt.plot(ts, label="Исторические")
+		plt.plot(forecast_series, color="red", label="Прогноз")
 		plt.legend()
-		plt.title(f"Прогноз {model_name} на {forecast_steps} шагов")
+		plt.title(f"Прогноз {model_name}")
 
-		# Сохраняем график
 		plot_filename = f"plot_{model_name}_{uuid.uuid4().hex}.png"
 		plot_path = os.path.join(app.config["PLOT_FOLDER"], plot_filename)
 		plt.savefig(plot_path)
 		plt.close()
 
+		csv_filename = request.form.get("csv_filename")
+		script_name = request.form.get("script_name")
+		date_col = request.form.get("date_col")
+		target_col = request.form.get("target_col")
+		model_name = request.form.get("model_name")
+		forecast_steps = request.form.get("forecast_steps", 14)
+
+		# ... (логика предсказания)
+
+		# В конце — передаём ВСЕ значения обратно, чтобы шаблон мог
+		# заполнить форму как раньше:
 		return render_template("predict.html",
 		                       message="Прогноз успешно сформирован!",
-		                       plot_filename=plot_filename)
+		                       plot_filename=plot_filename,
+		                       data_files=data_files,
+		                       model_files=model_files,
+		                       script_files=script_files,
+		                       # <--- добавляем «выбранные» значения:
+		                       selected_csv=csv_filename,
+		                       selected_script=script_name,
+		                       selected_model=model_name,
+		                       entered_date_col=date_col,
+		                       entered_target_col=target_col,
+		                       entered_steps=forecast_steps)
 
-	return render_template("predict.html", message=None, plot_filename=None)
+	# GET
+	return render_template("predict.html",
+	                       message=None,
+	                       plot_filename=None,
+	                       data_files=data_files,
+	                       model_files=model_files,
+	                       script_files=script_files,
+	                       selected_csv=None,
+	                       selected_script=None,
+	                       selected_model=None,
+	                       entered_date_col=None,
+	                       entered_target_col=None,
+	                       entered_steps=None)
 
 
-##############################################################################
-# Страница метрик (MSE, RMSE, MAPE) с train/test split
-##############################################################################
+###############################################################################
+# МЕТРИКИ (/metrics)
+###############################################################################
 @app.route("/metrics", methods=["GET", "POST"])
 def metrics():
-	"""
-	Берём CSV и выбранную модель,
-	разбиваем данные на train/test (например, 80/20 по времени),
-	строим прогноз на test, считаем метрики (MSE, RMSE, MAPE).
-	"""
+	data_files = [f for f in os.listdir(app.config["UPLOAD_FOLDER"]) if f.endswith(".csv")]
+	model_files = [m[:-4] for m in os.listdir(app.config["MODEL_FOLDER"]) if m.endswith(".pkl")]
+	script_files = get_script_list()
+
 	if request.method == "POST":
 		csv_filename = request.form.get("csv_filename")
+		script_name = request.form.get("script_name")
 		date_col = request.form.get("date_col")
 		target_col = request.form.get("target_col")
 		model_name = request.form.get("model_name")
@@ -175,27 +331,43 @@ def metrics():
 
 		filepath = os.path.join(app.config["UPLOAD_FOLDER"], csv_filename)
 		if not os.path.exists(filepath):
-			return render_template(
-				"metrics.html",
-				message=f"Файл {csv_filename} не найден!",
-				metrics_dict=None
-			)
+			return render_template("metrics.html",
+			                       message=f"Файл {csv_filename} не найден!",
+			                       metrics_dict=None,
+			                       data_files=data_files,
+			                       model_files=model_files,
+			                       script_files=script_files)
 
 		model_path = os.path.join(app.config["MODEL_FOLDER"], f"{model_name}.pkl")
 		if not os.path.exists(model_path):
-			return render_template(
-				"metrics.html",
-				message=f"Модель {model_name} не найдена!",
-				metrics_dict=None
-			)
+			return render_template("metrics.html",
+			                       message=f"Модель {model_name} не найдена!",
+			                       metrics_dict=None,
+			                       data_files=data_files,
+			                       model_files=model_files,
+			                       script_files=script_files)
 
-		# Загружаем данные
+		# Загружаем CSV
 		df = pd.read_csv(filepath)
+		# Применяем скрипт
+		if script_name and script_name != "none":
+			script_path = os.path.join(app.config["SCRIPT_FOLDER"], script_name)
+			df = apply_transform(df, script_path)
+
+		# Проверка
+		if date_col not in df.columns or target_col not in df.columns:
+			return render_template("metrics.html",
+			                       message=f"Нет {date_col}/{target_col} в данных!",
+			                       metrics_dict=None,
+			                       data_files=data_files,
+			                       model_files=model_files,
+			                       script_files=script_files)
+
 		df[date_col] = pd.to_datetime(df[date_col])
 		df.sort_values(by=date_col, inplace=True)
 		ts = df.set_index(date_col)[target_col]
 
-		# Делим на train/test по времени
+		# train/test split
 		n = len(ts)
 		split_idx = int(n * (1 - test_size))
 		train_data = ts.iloc[:split_idx]
@@ -205,21 +377,17 @@ def metrics():
 		with open(model_path, "rb") as f:
 			arima_model = pickle.load(f)
 
-		# Переобучаем модель на train, чтобы корректно считать метрики
+		# Переобучаем на train (для корректных метрик)
 		arima_model.fit(train_data)
 
-		# Прогнозируем на длину test_data
-		forecast_values = arima_model.predict(n_periods=len(test_data))
+		# Прогноз
+		forecast_vals = arima_model.predict(n_periods=len(test_data))
+		forecast_series = pd.Series(forecast_vals, index=test_data.index)
 
-		# Преобразуем forecast_values в Series с тем же индексом, что и у test_data
-		forecast_series = pd.Series(forecast_values, index=test_data.index)
-
-		# Считаем метрики
+		# Подсчитываем MSE, RMSE, MAPE
 		mse_value = mean_squared_error(test_data, forecast_series)
 		rmse_value = np.sqrt(mse_value)
-
-		# MAPE = mean absolute percentage error
-		# (если в test_data нет нулевых значений)
+		# Если в test_data нет нулей
 		mape_value = np.mean(np.abs((test_data - forecast_series) / test_data)) * 100
 
 		metrics_dict = {
@@ -228,23 +396,80 @@ def metrics():
 			"MAPE (%)": round(mape_value, 3)
 		}
 
-		return render_template(
-			"metrics.html",
-			message="Метрики успешно рассчитаны!",
-			metrics_dict=metrics_dict
-		)
+		return render_template("metrics.html",
+		                       message="Метрики успешно рассчитаны!",
+		                       metrics_dict=metrics_dict,
+		                       data_files=data_files,
+		                       model_files=model_files,
+		                       script_files=script_files)
 
-	# Если GET-запрос — просто отрисовываем форму
-	return render_template("metrics.html", message=None, metrics_dict=None)
+	# GET
+	return render_template("metrics.html",
+	                       message=None,
+	                       metrics_dict=None,
+	                       data_files=data_files,
+	                       model_files=model_files,
+	                       script_files=script_files)
 
 
-##############################################################################
-# История графиков (простейшая реализация — просто показывает PNG в папке)
-##############################################################################
+###############################################################################
+# ИСТОРИЯ ГРАФИКОВ (/history)
+###############################################################################
 @app.route("/history")
 def history():
 	plots = os.listdir(app.config["PLOT_FOLDER"])
 	return render_template("history.html", plots=plots)
+
+
+@app.route("/file_manager", methods=["GET"])
+def file_manager():
+	# Собираем списки файлов
+	data_files = [f for f in os.listdir(app.config["UPLOAD_FOLDER"]) if
+	              os.path.isfile(os.path.join(app.config["UPLOAD_FOLDER"], f))]
+	model_files = [f for f in os.listdir(app.config["MODEL_FOLDER"]) if
+	               os.path.isfile(os.path.join(app.config["MODEL_FOLDER"], f))]
+	script_files = [f for f in os.listdir(app.config["SCRIPT_FOLDER"]) if
+	                os.path.isfile(os.path.join(app.config["SCRIPT_FOLDER"], f))]
+
+	# Опционально — если хотите ещё и картинки из ./static/plots
+	plot_files = [f for f in os.listdir(app.config["PLOT_FOLDER"]) if
+	              os.path.isfile(os.path.join(app.config["PLOT_FOLDER"], f))]
+
+	return render_template("file_manager.html",
+	                       data_files=data_files,
+	                       model_files=model_files,
+	                       script_files=script_files,
+	                       plot_files=plot_files)
+
+
+# ---------------------------------------------------------------------
+# Маршрут: удаляем файл в нужной папке, по типу
+# ---------------------------------------------------------------------
+@app.route("/delete_file", methods=["GET"])
+def delete_file():
+	file_type = request.args.get("file_type")  # data / model / script / plot
+	filename = request.args.get("filename")
+	if not file_type or not filename:
+		return "Не указан file_type или filename", 400
+
+	# Определяем папку по типу
+	if file_type == "data":
+		folder = app.config["UPLOAD_FOLDER"]
+	elif file_type == "model":
+		folder = app.config["MODEL_FOLDER"]
+	elif file_type == "script":
+		folder = app.config["SCRIPT_FOLDER"]
+	elif file_type == "plot":
+		folder = app.config["PLOT_FOLDER"]
+	else:
+		return "Неверный тип файла", 400
+
+	filepath = os.path.join(folder, filename)
+	if os.path.exists(filepath):
+		os.remove(filepath)
+		return redirect(url_for("file_manager"))
+	else:
+		return f"Файл {filename} не найден в {folder}", 404
 
 
 if __name__ == "__main__":

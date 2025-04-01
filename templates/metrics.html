@@ -6,10 +6,18 @@
 {% endif %}
 
 <form method="POST" class="row g-3">
+  <!-- Выбор CSV -->
   <div class="col-md-3">
     <label class="form-label">CSV-файл:</label>
-    <input type="text" name="csv_filename" class="form-control" required>
+    <select name="csv_filename" class="form-select" required>
+      <option value="" disabled selected>-- выберите CSV --</option>
+      {% for df in data_files %}
+        <option value="{{ df }}">{{ df }}</option>
+      {% endfor %}
+    </select>
   </div>
+
+  <!-- Столбцы -->
   <div class="col-md-3">
     <label class="form-label">Столбец с датами:</label>
     <input type="text" name="date_col" class="form-control" required>
@@ -18,14 +26,23 @@
     <label class="form-label">Столбец-таргет:</label>
     <input type="text" name="target_col" class="form-control" required>
   </div>
+
+  <!-- Выбор модели -->
   <div class="col-md-3">
-    <label class="form-label">Имя модели (без .pkl):</label>
-    <input type="text" name="model_name" class="form-control" required>
+    <label class="form-label">Модель:</label>
+    <select name="model_name" class="form-select" required>
+      <option value="" disabled selected>-- выберите модель --</option>
+      {% for mn in model_files %}
+        <option value="{{ mn }}">{{ mn }}</option>
+      {% endfor %}
+    </select>
   </div>
+
   <div class="col-md-3">
     <label class="form-label">Test size (доля теста):</label>
     <input type="number" step="0.1" name="test_size" class="form-control" value="0.2">
   </div>
+
   <div class="col-12">
     <button type="submit" class="btn btn-secondary">Рассчитать метрики</button>
   </div>

@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Менеджер файлов</h2>
+
+<!-- Блок: Data Files -->
+<h3>Data Files (./data)</h3>
+<ul>
+  {% for df in data_files %}
+    <li>
+      {{ df }}
+      <a href="{{ url_for('delete_file', file_type='data', filename=df) }}"
+         class="btn btn-sm btn-danger">Удалить</a>
+    </li>
+  {% endfor %}
+</ul>
+
+<!-- Блок: Model Files -->
+<h3>Model Files (./models)</h3>
+<ul>
+  {% for mf in model_files %}
+    <li>
+      {{ mf }}
+      <a href="{{ url_for('delete_file', file_type='model', filename=mf) }}"
+         class="btn btn-sm btn-danger">Удалить</a>
+    </li>
+  {% endfor %}
+</ul>
+
+<!-- Блок: Script Files -->
+<h3>Script Files (./scripts)</h3>
+<ul>
+  {% for sf in script_files %}
+    <li>
+      {{ sf }}
+      <a href="{{ url_for('delete_file', file_type='script', filename=sf) }}"
+         class="btn btn-sm btn-danger">Удалить</a>
+    </li>
+  {% endfor %}
+</ul>
+
+<!-- Блок: Plot Files -->
+<h3>Plot Files (./static/plots)</h3>
+<ul>
+  {% for pf in plot_files %}
+    <li>
+      {{ pf }}
+      <a href="{{ url_for('delete_file', file_type='plot', filename=pf) }}"
+         class="btn btn-sm btn-danger">Удалить</a>
+    </li>
+  {% endfor %}
+</ul>
+
+{% endblock %}
