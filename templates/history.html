@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>История сохранённых графиков</h2>
+<div class="row">
+{% for plot in plots %}
+  <div class="col-md-4 mb-3 text-center">
+    <div class="card">
+      <img src="{{ url_for('static', filename='plots/' + plot) }}"
+           class="card-img-top" alt="{{ plot }}">
+      <div class="card-body">
+        <p class="card-text">{{ plot }}</p>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+</div>
+{% endblock %}

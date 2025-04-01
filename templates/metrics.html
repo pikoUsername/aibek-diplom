@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Расчёт метрик (MSE, RMSE, MAPE)</h2>
+{% if message %}
+  <div class="alert alert-info">{{ message }}</div>
+{% endif %}
+
+<form method="POST" class="row g-3">
+  <div class="col-md-3">
+    <label class="form-label">CSV-файл:</label>
+    <input type="text" name="csv_filename" class="form-control" required>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Столбец с датами:</label>
+    <input type="text" name="date_col" class="form-control" required>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Столбец-таргет:</label>
+    <input type="text" name="target_col" class="form-control" required>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Имя модели (без .pkl):</label>
+    <input type="text" name="model_name" class="form-control" required>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Test size (доля теста):</label>
+    <input type="number" step="0.1" name="test_size" class="form-control" value="0.2">
+  </div>
+  <div class="col-12">
+    <button type="submit" class="btn btn-secondary">Рассчитать метрики</button>
+  </div>
+</form>
+
+{% if metrics_dict %}
+  <hr>
+  <h4>Результаты:</h4>
+  <table class="table table-bordered w-50">
+    <thead>
+      <tr>
+        <th>Метрика</th>
+        <th>Значение</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for k, v in metrics_dict.items() %}
+        <tr>
+          <td>{{ k }}</td>
+          <td>{{ v }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+{% endblock %}
