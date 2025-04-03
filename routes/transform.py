@@ -153,7 +153,7 @@ def save_transformed():
     try:
         df = pd.read_csv(filepath)
         transformed_df = apply_transform_code(df.copy(), script_code)
-        processed_folder = os.path.join(current_app.config["BASE_DIR"], "data", "processed")
+        processed_folder = os.path.join(current_app.config["BASE_DIR"], "data")
         os.makedirs(processed_folder, exist_ok=True)
         output_path = os.path.join(processed_folder, output_filename)
         transformed_df.to_csv(output_path, index=False)
@@ -166,7 +166,7 @@ def download_transformed():
     output_filename = request.args.get("output_filename", "")
     if not output_filename:
         return "Имя файла не указано.", 400
-    processed_folder = os.path.join(current_app.config["BASE_DIR"], "data", "processed")
+    processed_folder = os.path.join(current_app.config["BASE_DIR"], "data")
     output_path = os.path.join(processed_folder, output_filename)
     if os.path.exists(output_path):
         return send_file(output_path, as_attachment=True)
