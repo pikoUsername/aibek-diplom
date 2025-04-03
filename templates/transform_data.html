@@ -19,7 +19,7 @@
 </form>
 
 <div class="row">
-  <!-- Левая колонка: редактор кода и выбор готовых скриптов -->
+  <!-- Левая колонка: редактор кода и кнопки -->
   <div class="col-md-6">
     <h4>Редактор скрипта</h4>
     <!-- Dropdown для выбора готового скрипта -->
@@ -33,7 +33,7 @@
       </select>
     </div>
     <!-- Скрытый textarea для синхронизации с CodeMirror -->
-    <textarea id="code" name="script_code" style="display:none;">{% if script_code %}{{ script_code }}{% else %}{{ default_code }}{% endif %}</textarea>
+    <textarea id="code" name="script_code" style="display:none;">{{ script_code }}</textarea>
     <div id="editor" style="height:600px; width:100%; border: 1px solid #ccc;"></div>
     <div class="mt-2">
       <label for="download_filename" class="form-label">Имя файла для скачивания скрипта:</label>
@@ -50,8 +50,15 @@
       <label for="output_filename" class="form-label">Имя файла для сохранения преобразованных данных (опционально):</label>
       <input type="text" name="output_filename" id="output_filename" class="form-control" placeholder="output.csv" value="{{ output_filename }}">
     </div>
+    <!-- Форма отправки (POST) -->
+    <form method="POST">
+      <input type="hidden" name="csv_filename" value="{{ selected_csv }}">
+      <input type="hidden" name="script_code" id="script_code_hidden">
+      <input type="hidden" name="output_filename" value="{{ output_filename }}">
+      <button type="submit" class="btn btn-primary mt-3">Применить преобразование</button>
+    </form>
   </div>
-  <!-- Правая колонка: отображение таблиц -->
+  <!-- Правая колонка: таблицы -->
   <div class="col-md-6">
     {% if original_html %}
     <div class="mb-3">
@@ -68,16 +75,7 @@
   </div>
 </div>
 
-<!-- Форма отправки (POST) -->
-<form method="POST">
-  <!-- Передаём выбранный CSV -->
-  <input type="hidden" name="csv_filename" value="{{ selected_csv }}">
-  <!-- Скрытое поле для синхронизации кода -->
-  <input type="hidden" name="script_code" id="script_code_hidden">
-  <!-- Поле для имени файла для сохранения преобразованных данных -->
-  <input type="hidden" name="output_filename" value="{{ output_filename }}">
-  <button type="submit" class="btn btn-primary mt-3">Применить преобразование</button>
-</form>
+
 
 {% if script_content %}
 <hr>
@@ -105,7 +103,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
 <script>
-  // Инициализация CodeMirror
   var editor = CodeMirror(document.getElementById("editor"), {
     value: document.getElementById("code").value,
     mode: "python",
@@ -115,13 +112,11 @@
   });
   editor.setSize("100%", "600px");
 
-  // При отправке формы копируем содержимое редактора в скрытое поле
   document.querySelector("form").addEventListener("submit", function(e) {
     document.getElementById("script_code_hidden").value = editor.getValue();
     window.scrollTo(0, 0);
   });
 
-  // Функция для скачивания скрипта на клиенте
   function downloadScript() {
     var filename = document.getElementById("download_filename").value || "script.py";
     var code = editor.getValue();
@@ -134,7 +129,6 @@
     document.body.removeChild(link);
   }
 
-  // Функция для сохранения скрипта на сервере через AJAX
   function saveScriptOnServer() {
     var filename = document.getElementById("server_filename").value || "script.py";
     var code = editor.getValue();
@@ -157,7 +151,6 @@
     });
   }
 
-  // Функция для загрузки готового скрипта из папки "scripts"
   document.getElementById("script_selector").addEventListener("change", function() {
     var scriptName = this.value;
     if (scriptName) {
