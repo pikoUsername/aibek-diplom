@@ -41,6 +41,12 @@
     <input type="text" name="model_name" class="form-control">
   </div>
 
+  <!-- Новое поле для экзогенных переменных -->
+  <div class="col-md-4">
+    <label class="form-label">Экзогенные переменные (через запятую):</label>
+    <input type="text" name="exog_cols" class="form-control" placeholder="Например: promo, holiday">
+  </div>
+
   <div class="col-12">
     <button type="submit" class="btn btn-success">Обучить SARIMA</button>
   </div>

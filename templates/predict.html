@@ -5,7 +5,7 @@
   <div class="alert alert-info">{{ message }}</div>
 {% endif %}
 
-<form method="POST" class="row g-3">
+<form method="POST" enctype="multipart/form-data" class="row g-3">
   <!-- CSV -->
   <div class="col-md-3">
     <label class="form-label">CSV-файл:</label>
@@ -52,6 +52,12 @@
   <div class="col-md-3">
     <label class="form-label">Горизонт прогноза:</label>
     <input type="number" name="forecast_steps" class="form-control" value="14">
+  </div>
+
+  <!-- Новое поле для загрузки экзогенных переменных -->
+  <div class="col-md-3">
+    <label class="form-label">Файл с экзогенными данными (CSV):</label>
+    <input type="file" name="exog_forecast_file" class="form-control">
   </div>
 
   <div class="col-12">

@@ -8,7 +8,7 @@
   {% for df in data_files %}
     <li>
       {{ df }}
-      <a href="{{ url_for('delete_file', file_type='data', filename=df) }}"
+      <a href="{{ url_for('file_manager.delete_file', file_type='data', filename=df) }}"
          class="btn btn-sm btn-danger">Удалить</a>
     </li>
   {% endfor %}
@@ -20,7 +20,7 @@
   {% for mf in model_files %}
     <li>
       {{ mf }}
-      <a href="{{ url_for('delete_file', file_type='model', filename=mf) }}"
+      <a href="{{ url_for('file_manager.delete_file', file_type='model', filename=mf) }}"
          class="btn btn-sm btn-danger">Удалить</a>
     </li>
   {% endfor %}
@@ -32,7 +32,7 @@
   {% for sf in script_files %}
     <li>
       {{ sf }}
-      <a href="{{ url_for('delete_file', file_type='script', filename=sf) }}"
+      <a href="{{ url_for('file_manager.delete_file', file_type='script', filename=sf) }}"
          class="btn btn-sm btn-danger">Удалить</a>
     </li>
   {% endfor %}
@@ -44,7 +44,7 @@
   {% for pf in plot_files %}
     <li>
       {{ pf }}
-      <a href="{{ url_for('delete_file', file_type='plot', filename=pf) }}"
+      <a href="{{ url_for('file_manager.delete_file', file_type='plot', filename=pf) }}"
          class="btn btn-sm btn-danger">Удалить</a>
     </li>
   {% endfor %}
