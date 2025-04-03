@@ -51,7 +51,7 @@
       <input type="text" name="output_filename" id="output_filename" class="form-control" placeholder="output.csv" value="{{ output_filename }}">
     </div>
     <!-- Форма отправки (POST) -->
-    <form method="POST">
+    <form id="postForm" method="POST">
       <input type="hidden" name="csv_filename" value="{{ selected_csv }}">
       <input type="hidden" name="script_code" id="script_code_hidden">
       <input type="hidden" name="output_filename" value="{{ output_filename }}">
@@ -150,6 +150,11 @@
       document.getElementById("saveScriptResult").innerText = "Ошибка: " + error;
     });
   }
+
+  document.getElementById("postForm").addEventListener("submit", function(e) {
+    document.getElementById("script_code_hidden").value = editor.getValue();
+    window.scrollTo(0, 0);
+  });
 
   document.getElementById("script_selector").addEventListener("change", function() {
     var scriptName = this.value;

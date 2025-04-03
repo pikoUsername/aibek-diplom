@@ -58,9 +58,10 @@ def transform_data():
     else:
         # POST-запрос: читаем данные из формы
         selected_csv = request.form.get("csv_filename", "")
-        script_code = request.form.get("script_code") or DEFAULT_CODE
+        script_code = request.form.get("script_code")
         output_filename = request.form.get("output_filename") or ""
         n = get_rows_to_show(script_code)
+        print(script_code)
         if not selected_csv:
             message = "Не выбран CSV файл."
         else:
