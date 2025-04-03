@@ -1,87 +1,70 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Обучение новой SARIMA</h2>
+<h2>Обучение модели с экзогенными факторами</h2>
 {% if message %}
   <div class="alert alert-info">{{ message }}</div>
 {% endif %}
-
 <form method="POST" class="row g-3">
-  <!-- CSV-файл -->
+  <!-- CSV и скрипт -->
   <div class="col-md-3">
     <label class="form-label">CSV-файл:</label>
     <select name="csv_filename" class="form-select" required>
       <option value="" disabled selected>-- выберите CSV --</option>
       {% for f in data_files %}
-        <option value="{{ f }}">{{ f }}</option>
+      <option value="{{ f }}">{{ f }}</option>
       {% endfor %}
     </select>
   </div>
-
-  <!-- Скрипт (опционально) -->
   <div class="col-md-3">
     <label class="form-label">Скрипт (опционально):</label>
     <select name="script_name" class="form-select">
       <option value="none" selected>-- без скрипта --</option>
       {% for sf in script_files %}
-        <option value="{{ sf }}">{{ sf }}</option>
+      <option value="{{ sf }}">{{ sf }}</option>
       {% endfor %}
     </select>
   </div>
-
-  <!-- Столбец даты и таргет -->
+  <!-- Колонки -->
   <div class="col-md-3">
     <label class="form-label">Столбец даты:</label>
     <input type="text" name="date_col" class="form-control" required>
   </div>
   <div class="col-md-3">
-    <label class="form-label">Столбец-таргет:</label>
+    <label class="form-label">Столбец таргет:</label>
     <input type="text" name="target_col" class="form-control" required>
   </div>
-
-  <!-- Имя модели -->
-  <div class="col-md-4">
+  <div class="col-md-3">
+    <label class="form-label">Экзогенные переменные (через запятую):</label>
+    <input type="text" name="exog_cols" class="form-control" placeholder="promo,holiday">
+  </div>
+  <div class="col-md-3">
     <label class="form-label">Имя модели:</label>
     <input type="text" name="model_name" class="form-control">
   </div>
-
-  <!-- Экзогенные переменные -->
-  <div class="col-md-4">
-    <label class="form-label">Экзогенные переменные (через запятую):</label>
-    <input type="text" name="exog_cols" class="form-control" placeholder="Например: promo, holiday">
-  </div>
-
-  <!-- Параметры модели: order и seasonal_order -->
   <div class="col-md-3">
     <label class="form-label">Order (p,d,q):</label>
-    <input type="text" name="order" class="form-control" placeholder="Например: 1,1,1">
+    <input type="text" name="order" class="form-control" placeholder="1,1,1">
   </div>
   <div class="col-md-3">
     <label class="form-label">Seasonal Order (P,D,Q,m):</label>
-    <input type="text" name="seasonal_order" class="form-control" placeholder="Например: 1,1,1,7">
+    <input type="text" name="seasonal_order" class="form-control" placeholder="1,1,1,7">
   </div>
-
-  <!-- Динамические дополнительные параметры -->
+  <!-- Dynamic additional parameters -->
   <div class="col-12">
     <h4>Дополнительные параметры модели</h4>
     <div id="dynamic-params"></div>
     <button type="button" id="add-param" class="btn btn-secondary">Добавить параметр</button>
   </div>
-
-  <!-- Скрытое поле для передачи JSON с дополнительными параметрами -->
   <input type="hidden" name="additional_params" id="additional_params">
-
   <div class="col-12">
-    <button type="submit" class="btn btn-success">Обучить SARIMA</button>
+    <button type="submit" class="btn btn-success">Обучить модель с экзогенными</button>
   </div>
 </form>
-
 <script>
-  // Добавление новой пары ключ-значение
   document.getElementById("add-param").addEventListener("click", function() {
     var container = document.getElementById("dynamic-params");
     var paramDiv = document.createElement("div");
     paramDiv.classList.add("row", "mb-2");
-
     var keyDiv = document.createElement("div");
     keyDiv.classList.add("col-md-5");
     var keyInput = document.createElement("input");
@@ -90,7 +73,6 @@
     keyInput.placeholder = "Ключ параметра";
     keyInput.name = "param_key";
     keyDiv.appendChild(keyInput);
-
     var valueDiv = document.createElement("div");
     valueDiv.classList.add("col-md-5");
     var valueInput = document.createElement("input");
@@ -99,7 +81,6 @@
     valueInput.placeholder = "Значение параметра";
     valueInput.name = "param_value";
     valueDiv.appendChild(valueInput);
-
     var removeDiv = document.createElement("div");
     removeDiv.classList.add("col-md-2");
     var removeButton = document.createElement("button");
@@ -110,14 +91,11 @@
       paramDiv.remove();
     });
     removeDiv.appendChild(removeButton);
-
     paramDiv.appendChild(keyDiv);
     paramDiv.appendChild(valueDiv);
     paramDiv.appendChild(removeDiv);
     container.appendChild(paramDiv);
   });
-
-  // При отправке формы собираем все динамические параметры в JSON
   document.querySelector("form").addEventListener("submit", function(e) {
     var keys = document.getElementsByName("param_key");
     var values = document.getElementsByName("param_value");

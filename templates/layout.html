@@ -21,19 +21,44 @@
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
               data-bs-target="#navbarNav" aria-controls="navbarNav"
               aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon">Menu</span>
+        <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
+          <!-- Главная -->
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('index.index') }}">Главная</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('train.train') }}">Обучение модели</a>
+
+          <!-- Dropdown: Обучение модели -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownTraining"
+               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Обучение модели
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdownTraining">
+              <li><a class="dropdown-item" href="{{ url_for('train.train') }}">Общее обучение модели</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('sku_train.sku_train') }}">Обучение по SKU</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('exog_train.exog_train') }}">Обучение с экзогенными</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('returns_train.returns_train') }}">Обучение прогноз возвратов</a></li>
+            </ul>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('predict.predict') }}">Предсказание</a>
+
+          <!-- Dropdown: Предсказание -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPredict"
+               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Предсказание
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdownPredict">
+              <li><a class="dropdown-item" href="{{ url_for('predict.predict') }}">Общее предсказание</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('sku_predict.sku_predict') }}">Предсказание по SKU</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('exog_predict.exog_predict') }}">Предсказание с экзогенными</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('returns_predict.returns_predict') }}">Прогноз возвратов</a></li>
+            </ul>
           </li>
+
+          <!-- Остальные пункты -->
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('metrics.metrics') }}">Метрики</a>
           </li>
@@ -46,13 +71,14 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('file_manager.file_manager') }}">Менеджер файлов</a>
           </li>
-          <li>
-            <a class="nav-link" href="{{ url_for('view_data') }}">Просмотр данных</a>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('view_data.view_data') }}">Просмотр данных</a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
+
 
   <div class="container">
     {% block content %}
