@@ -67,10 +67,15 @@
     </div>
     {% endif %}
     {% if transformed_html %}
-    <div class="mb-3">
-      <h4>Преобразованные данные (первые {{ get_rows_to_show(script_code) }} строк):</h4>
-      <div class="table-responsive">{{ transformed_html | safe }}</div>
-    </div>
+      <div class="mb-3">
+        <h4>Преобразованные данные (первые {{ get_rows_to_show(script_code) }} строк):</h4>
+        <div class="table-responsive">{{ transformed_html | safe }}</div>
+        <!-- Новые кнопки для сохранения и загрузки -->
+        <div class="mt-2">
+          <button id="saveTransformedBtn" type="button" class="btn btn-success me-2">Сохранить на сервер</button>
+          <button id="downloadTransformedBtn" type="button" class="btn btn-info">Загрузить</button>
+        </div>
+      </div>
     {% endif %}
   </div>
 </div>
@@ -173,6 +178,50 @@
           alert("Ошибка: " + error);
         });
     }
+  });
+  document.getElementById("saveTransformedBtn").addEventListener("click", function() {
+    var outputFilenameInput = document.getElementById("output_filename");
+    var outputFilename = outputFilenameInput.value;
+    if (!outputFilename) {
+      outputFilename = prompt("Введите имя файла для сохранения:");
+      if (!outputFilename) {
+        return; // если пользователь отменил ввод
+      }
+      outputFilenameInput.value = outputFilename;
+    }
+    var scriptCode = editor.getValue();
+    var csvFilename = "{{ selected_csv }}";
+
+    var formData = new URLSearchParams({
+         "csv_filename": csvFilename,
+         "script_code": scriptCode,
+         "output_filename": outputFilename
+    });
+
+    fetch("{{ url_for('transform.save_transformed') }}", {
+         method: "POST",
+         headers: {
+             "Content-Type": "application/x-www-form-urlencoded"
+         },
+         body: formData
+    })
+    .then(response => response.text())
+    .then(data => {
+         alert(data);
+    })
+    .catch(error => {
+         alert("Ошибка: " + error);
+    });
+  });
+
+  // Обработчик для кнопки "Загрузить"
+  document.getElementById("downloadTransformedBtn").addEventListener("click", function() {
+    var outputFilename = document.getElementById("output_filename").value;
+    if (!outputFilename) {
+      alert("Сначала укажите имя файла и сохраните его на сервер.");
+      return;
+    }
+    window.location.href = "{{ url_for('transform.download_transformed') }}" + "?output_filename=" + encodeURIComponent(outputFilename);
   });
 </script>
 {% endblock %}

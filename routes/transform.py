@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import traceback
-from flask import Blueprint, render_template, request, current_app
+from flask import Blueprint, render_template, request, current_app, send_file
 from helpers.script_utils import get_script_list, apply_transform_code
 from pygments import highlight
 from pygments.lexers import PythonLexer
@@ -138,3 +138,37 @@ def get_script():
         return content, 200
     else:
         return "Скрипт не найден", 404
+
+
+@bp.route("/save_transformed", methods=["POST"])
+def save_transformed():
+    selected_csv = request.form.get("csv_filename", "")
+    script_code = request.form.get("script_code", "")
+    output_filename = request.form.get("output_filename", "")
+    if not selected_csv or not output_filename:
+        return "Не указан CSV файл или имя файла для сохранения.", 400
+    filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], selected_csv)
+    if not os.path.exists(filepath):
+        return f"Файл {selected_csv} не найден.", 404
+    try:
+        df = pd.read_csv(filepath)
+        transformed_df = apply_transform_code(df.copy(), script_code)
+        processed_folder = os.path.join(current_app.config["BASE_DIR"], "data", "processed")
+        os.makedirs(processed_folder, exist_ok=True)
+        output_path = os.path.join(processed_folder, output_filename)
+        transformed_df.to_csv(output_path, index=False)
+        return f"Данные преобразованы и сохранены как {output_filename}", 200
+    except Exception as e:
+        return f"Ошибка при сохранении: {e}", 500
+
+@bp.route("/download_transformed", methods=["GET"])
+def download_transformed():
+    output_filename = request.args.get("output_filename", "")
+    if not output_filename:
+        return "Имя файла не указано.", 400
+    processed_folder = os.path.join(current_app.config["BASE_DIR"], "data", "processed")
+    output_path = os.path.join(processed_folder, output_filename)
+    if os.path.exists(output_path):
+        return send_file(output_path, as_attachment=True)
+    else:
+        return "Файл не найден.", 404
