@@ -1,65 +1,49 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Прогноз с экзогенными факторами</h2>
+<h2>Предсказание модели с экзогенными переменными</h2>
 {% if message %}
   <div class="alert alert-info">{{ message }}</div>
 {% endif %}
-<form method="POST" enctype="multipart/form-data" class="row g-3">
-  <div class="col-md-3">
-    <label class="form-label">CSV-файл (история):</label>
-    <select name="csv_filename" class="form-select" required>
+<form method="POST" enctype="multipart/form-data">
+  <div class="mb-3">
+    <label for="csv_filename" class="form-label">CSV‑файл (история):</label>
+    <select name="csv_filename" id="csv_filename" class="form-select" required>
       <option value="" disabled selected>-- выберите CSV --</option>
       {% for f in data_files %}
       <option value="{{ f }}">{{ f }}</option>
       {% endfor %}
     </select>
   </div>
-  <div class="col-md-3">
-    <label class="form-label">Скрипт (опционально):</label>
-    <select name="script_name" class="form-select">
-      <option value="none" selected>-- без скрипта --</option>
-      {% for sf in script_files %}
-      <option value="{{ sf }}">{{ sf }}</option>
-      {% endfor %}
-    </select>
+  <div class="mb-3">
+    <label for="date_col" class="form-label">Столбец даты:</label>
+    <input type="text" name="date_col" id="date_col" class="form-control" required>
   </div>
-  <!-- Колонки -->
-  <div class="col-md-3">
-    <label class="form-label">Столбец даты:</label>
-    <input type="text" name="date_col" class="form-control" required>
+  <div class="mb-3">
+    <label for="target_col" class="form-label">Столбец таргет:</label>
+    <input type="text" name="target_col" id="target_col" class="form-control" required>
   </div>
-  <div class="col-md-3">
-    <label class="form-label">Столбец таргет:</label>
-    <input type="text" name="target_col" class="form-control" required>
-  </div>
-  <div class="col-md-3">
-    <label class="form-label">Экзогенные переменные (через запятую):</label>
-    <input type="text" name="exog_cols" class="form-control" placeholder="promo,holiday">
-  </div>
-  <div class="col-md-3">
-    <label class="form-label">Модель:</label>
-    <select name="model_name" class="form-select" required>
+  <div class="mb-3">
+    <label for="model_name" class="form-label">Выберите модель:</label>
+    <select name="model_name" id="model_name" class="form-select" required>
       <option value="" disabled selected>-- выберите модель --</option>
       {% for mf in model_files %}
       <option value="{{ mf }}">{{ mf }}</option>
       {% endfor %}
     </select>
   </div>
-  <div class="col-md-3">
-    <label class="form-label">Горизонт прогноза (дней):</label>
-    <input type="number" name="forecast_steps" class="form-control" value="14">
+  <div class="mb-3">
+    <label for="forecast_steps" class="form-label">Горизонт прогноза (дней):</label>
+    <input type="number" name="forecast_steps" id="forecast_steps" class="form-control" value="14">
   </div>
-  <div class="col-md-4">
-    <label class="form-label">CSV с будущими экзогенными данными:</label>
-    <input type="file" name="exog_future_file" class="form-control" required>
+  <div class="mb-3">
+    <label for="exog_future_file" class="form-label">CSV с будущими экзогенными данными:</label>
+    <input type="file" name="exog_future_file" id="exog_future_file" class="form-control" required>
   </div>
-  <div class="col-12">
-    <button type="submit" class="btn btn-primary">Сформировать прогноз</button>
-  </div>
+  <button type="submit" class="btn btn-primary">Сформировать прогноз</button>
 </form>
 {% if plot_filename %}
 <hr>
-<h4>Результат прогноза:</h4>
-<img src="{{ url_for('static', filename='plots/' + plot_filename) }}" class="img-fluid img-thumbnail" alt="Прогноз с экзогенными">
+<h4>Результат прогнозирования:</h4>
+<img src="{{ url_for('static', filename='plots/' ~ plot_filename) }}" class="img-fluid" alt="Прогноз с экзогенными">
 {% endif %}
 {% endblock %}

@@ -1,0 +1,180 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Преобразование данных с помощью скрипта</h2>
+{% if message %}
+  <div class="alert alert-info" style="white-space: pre-wrap;">{{ message }}</div>
+{% endif %}
+
+<!-- Форма для выбора CSV (GET-запрос) -->
+<form method="GET" class="mb-4">
+  <div class="mb-3">
+    <label for="csv_filename" class="form-label">Выберите CSV-файл для предварительного просмотра:</label>
+    <select name="csv_filename" id="csv_filename" class="form-select" onchange="this.form.submit()">
+      <option value="" disabled {% if not selected_csv %}selected{% endif %}>-- выберите CSV --</option>
+      {% for file in data_files %}
+      <option value="{{ file }}" {% if file == selected_csv %}selected{% endif %}>{{ file }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+<div class="row">
+  <!-- Левая колонка: редактор кода и выбор готовых скриптов -->
+  <div class="col-md-6">
+    <h4>Редактор скрипта</h4>
+    <!-- Dropdown для выбора готового скрипта -->
+    <div class="mb-3">
+      <label for="script_selector" class="form-label">Выберите готовый скрипт:</label>
+      <select id="script_selector" class="form-select">
+        <option value="">-- Выберите скрипт --</option>
+        {% for s in script_files %}
+        <option value="{{ s }}">{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <!-- Скрытый textarea для синхронизации с CodeMirror -->
+    <textarea id="code" name="script_code" style="display:none;">{% if script_code %}{{ script_code }}{% else %}{{ default_code }}{% endif %}</textarea>
+    <div id="editor" style="height:600px; width:100%; border: 1px solid #ccc;"></div>
+    <div class="mt-2">
+      <label for="download_filename" class="form-label">Имя файла для скачивания скрипта:</label>
+      <input type="text" id="download_filename" class="form-control" placeholder="script.py">
+      <button type="button" class="btn btn-secondary mt-2" onclick="downloadScript()">Скачать скрипт</button>
+    </div>
+    <div class="mt-2">
+      <label for="server_filename" class="form-label">Имя файла для сохранения скрипта на сервере:</label>
+      <input type="text" id="server_filename" class="form-control" placeholder="script.py">
+      <button type="button" class="btn btn-secondary mt-2" onclick="saveScriptOnServer()">Сохранить скрипт на сервер</button>
+      <div id="saveScriptResult" class="mt-2"></div>
+    </div>
+    <div class="mb-3 mt-3">
+      <label for="output_filename" class="form-label">Имя файла для сохранения преобразованных данных (опционально):</label>
+      <input type="text" name="output_filename" id="output_filename" class="form-control" placeholder="output.csv" value="{{ output_filename }}">
+    </div>
+  </div>
+  <!-- Правая колонка: отображение таблиц -->
+  <div class="col-md-6">
+    {% if original_html %}
+    <div class="mb-3">
+      <h4>Исходные данные (первые {{ get_rows_to_show(default_code) }} строк):</h4>
+      <div class="table-responsive">{{ original_html | safe }}</div>
+    </div>
+    {% endif %}
+    {% if transformed_html %}
+    <div class="mb-3">
+      <h4>Преобразованные данные (первые {{ get_rows_to_show(script_code) }} строк):</h4>
+      <div class="table-responsive">{{ transformed_html | safe }}</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Форма отправки (POST) -->
+<form method="POST">
+  <!-- Передаём выбранный CSV -->
+  <input type="hidden" name="csv_filename" value="{{ selected_csv }}">
+  <!-- Скрытое поле для синхронизации кода -->
+  <input type="hidden" name="script_code" id="script_code_hidden">
+  <!-- Поле для имени файла для сохранения преобразованных данных -->
+  <input type="hidden" name="output_filename" value="{{ output_filename }}">
+  <button type="submit" class="btn btn-primary mt-3">Применить преобразование</button>
+</form>
+
+{% if script_content %}
+<hr>
+<h5>Текст скрипта:</h5>
+<style>
+{{ highlight_style|safe }}
+.highlight {
+  background-color: #1e1e1e !important;
+  color: #ffffff;
+  padding: 1em;
+  border-radius: 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.95rem;
+  overflow-x: auto;
+}
+</style>
+<div class="highlight bg-dark p-2" style="max-height:400px; overflow:auto;">
+  {{ highlighted_code|safe }}
+</div>
+{% endif %}
+
+<!-- Подключаем CodeMirror через CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
+<script>
+  // Инициализация CodeMirror
+  var editor = CodeMirror(document.getElementById("editor"), {
+    value: document.getElementById("code").value,
+    mode: "python",
+    theme: "monokai",
+    lineNumbers: true,
+    viewportMargin: Infinity
+  });
+  editor.setSize("100%", "600px");
+
+  // При отправке формы копируем содержимое редактора в скрытое поле
+  document.querySelector("form").addEventListener("submit", function(e) {
+    document.getElementById("script_code_hidden").value = editor.getValue();
+    window.scrollTo(0, 0);
+  });
+
+  // Функция для скачивания скрипта на клиенте
+  function downloadScript() {
+    var filename = document.getElementById("download_filename").value || "script.py";
+    var code = editor.getValue();
+    var blob = new Blob([code], {type: "text/plain;charset=utf-8"});
+    var link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  // Функция для сохранения скрипта на сервере через AJAX
+  function saveScriptOnServer() {
+    var filename = document.getElementById("server_filename").value || "script.py";
+    var code = editor.getValue();
+    fetch("{{ url_for('transform.save_script') }}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        "script_code": code,
+        "script_filename": filename
+      })
+    })
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById("saveScriptResult").innerText = data;
+    })
+    .catch(error => {
+      document.getElementById("saveScriptResult").innerText = "Ошибка: " + error;
+    });
+  }
+
+  // Функция для загрузки готового скрипта из папки "scripts"
+  document.getElementById("script_selector").addEventListener("change", function() {
+    var scriptName = this.value;
+    if (scriptName) {
+      fetch("{{ url_for('transform.get_script') }}?script_name=" + encodeURIComponent(scriptName))
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Ошибка загрузки скрипта");
+          }
+          return response.text();
+        })
+        .then(data => {
+          editor.setValue(data);
+        })
+        .catch(error => {
+          alert("Ошибка: " + error);
+        });
+    }
+  });
+</script>
+{% endblock %}

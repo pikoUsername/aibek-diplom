@@ -22,9 +22,11 @@ def create_app():
     from routes.exog_predict import bp as exog_predict_bp
     from routes.returns_train import bp as returns_train_bp
     from routes.returns_predict import bp as returns_predict_bp
+    from routes.transform import bp as transfer_data
 
     # Регистрируем Blueprints
     app.register_blueprint(index_bp)
+    app.register_blueprint(transfer_data)
     app.register_blueprint(data_bp)
     app.register_blueprint(train_bp)
     app.register_blueprint(predict_bp)
