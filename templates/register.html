@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h2 class="mb-4 text-center">Создать аккаунт</h2>
+    {% if errors %}
+      <div class="alert alert-danger">
+        <ul>
+          {% for error in errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    <form method="POST" action="{{ url_for('auth.register') }}">
+      <div class="mb-3">
+        <label for="username" class="form-label">Имя пользователя</label>
+        <input type="text" class="form-control" id="username" name="username" value="{{ username or '' }}" placeholder="Введите имя пользователя" required>
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Электронная почта</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ email or '' }}" placeholder="Введите email" required>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Пароль</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Придумайте пароль" required>
+      </div>
+      <div class="mb-3">
+        <label for="confirm_password" class="form-label">Подтверждение пароля</label>
+        <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Подтвердите пароль" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+    </form>
+    <p class="text-center mt-3">
+      Уже зарегистрированы? <a href="{{ url_for('auth.login') }}">Войти</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block title %}Вход в систему{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h2 class="mb-4 text-center">Вход в систему</h2>
+    {% if errors %}
+      <div class="alert alert-danger">
+        <ul>
+          {% for error in errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    <form method="POST" action="{{ url_for('auth.login') }}">
+      <div class="mb-3">
+        <label for="email" class="form-label">Электронная почта</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ email or '' }}" placeholder="Введите email" required>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Пароль</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Войти</button>
+    </form>
+    <p class="text-center mt-3">
+      Нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрируйтесь</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

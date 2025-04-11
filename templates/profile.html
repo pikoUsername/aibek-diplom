@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-4">
+    <h3>Профиль пользователя</h3>
+    <ul class="list-group">
+      <li class="list-group-item"><strong>ID:</strong> {{ user.id }}</li>
+      <li class="list-group-item"><strong>Имя пользователя:</strong> {{ user.username }}</li>
+      <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
+    </ul>
+  </div>
+  <div class="col-md-8">
+    <h3>Дополнительная информация</h3>
+    <p>Здесь можно разместить данные о последних действиях, статистику и прочую важную информацию о пользователе.</p>
+  </div>
+</div>
+{% endblock %}

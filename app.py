@@ -1,10 +1,12 @@
 from flask import Flask
 from config import Config
+from db.models import db, init_db
+
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-
+    app.secret_key = "sos"
 
     from routes.index import bp as index_bp
     from routes.train import bp as train_bp
@@ -23,6 +25,7 @@ def create_app():
     from routes.returns_train import bp as returns_train_bp
     from routes.returns_predict import bp as returns_predict_bp
     from routes.transform import bp as transfer_data
+    from routes.auth import auth_bp
 
     app.register_blueprint(index_bp)
     app.register_blueprint(transfer_data)
@@ -41,6 +44,9 @@ def create_app():
     app.register_blueprint(exog_predict_bp)
     app.register_blueprint(returns_train_bp)
     app.register_blueprint(returns_predict_bp)
+    app.register_blueprint(auth_bp)
+
+    init_db(app)
 
     return app
 

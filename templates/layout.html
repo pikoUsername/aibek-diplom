@@ -26,12 +26,11 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <!-- Главная -->
+        <ul class="navbar-nav me-auto">
+          <!-- Основные пункты меню -->
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('index.index') }}">Главная</a>
           </li>
-
           <!-- Dropdown: Обучение модели -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownTraining"
@@ -45,7 +44,6 @@
               <li><a class="dropdown-item" href="{{ url_for('returns_train.returns_train') }}">Обучение прогноз возвратов</a></li>
             </ul>
           </li>
-
           <!-- Dropdown: Предсказание -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPredict"
@@ -59,8 +57,7 @@
               <li><a class="dropdown-item" href="{{ url_for('returns_predict.returns_predict') }}">Прогноз возвратов</a></li>
             </ul>
           </li>
-
-          <!-- Остальные пункты -->
+          <!-- Остальные пункты меню -->
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('metrics.metrics') }}">Метрики</a>
           </li>
@@ -80,10 +77,27 @@
             <a class="nav-link" href="{{ url_for('transform.transform_data') }}">Прообразовать данные</a>
           </li>
         </ul>
+        <!-- Блок авторизации -->
+        <ul class="navbar-nav">
+          {% if session.get('user_id') %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.profile') }}">Профиль</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.logout') }}">Выход</a>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.login') }}">Вход</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.register') }}">Регистрация</a>
+            </li>
+          {% endif %}
+        </ul>
       </div>
     </div>
   </nav>
-
 
   <div class="container">
     {% block content %}

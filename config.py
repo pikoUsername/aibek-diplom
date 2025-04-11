@@ -6,6 +6,7 @@ class Config:
     MODEL_FOLDER = os.path.join(BASE_DIR, "models")
     PLOT_FOLDER = os.path.join(BASE_DIR, "static", "plots")
     SCRIPT_FOLDER = os.path.join(BASE_DIR, "scripts")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI", "sqlite:///project.db")
 
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     os.makedirs(MODEL_FOLDER, exist_ok=True)
