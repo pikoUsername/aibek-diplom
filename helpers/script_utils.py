@@ -24,9 +24,7 @@ def apply_transform(df: pd.DataFrame, script_path: str) -> pd.DataFrame:
 
 
 def get_script_list(script_folder: str) -> list:
-    """
-    Возвращает список .py-файлов в указанной папке со скриптами.
-    """
+
     return [f for f in os.listdir(script_folder) if f.endswith(".py")]
 
 

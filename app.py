@@ -5,7 +5,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Импорт и регистрация Blueprints для всех модулей приложения
+
     from routes.index import bp as index_bp
     from routes.train import bp as train_bp
     from routes.predict import bp as predict_bp
@@ -24,7 +24,6 @@ def create_app():
     from routes.returns_predict import bp as returns_predict_bp
     from routes.transform import bp as transfer_data
 
-    # Регистрируем Blueprints
     app.register_blueprint(index_bp)
     app.register_blueprint(transfer_data)
     app.register_blueprint(data_bp)

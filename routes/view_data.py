@@ -47,7 +47,7 @@ def view_data():
                     justify="left"
                 )
 
-                # Читаем исходный текст скрипта для подсветки
+
                 with open(script_path, "r", encoding="utf-8") as f:
                     script_content = f.read()
 
@@ -71,7 +71,7 @@ def view_data():
                                highlighted_code=highlighted_code,
                                highlight_style=highlight_style)
     else:
-        # GET-запрос
+
         return render_template("view_data.html",
                                data_files=data_files,
                                script_files=script_files,
