@@ -1,20 +1,46 @@
 {% extends "layout.html" %}
-
 {% block title %}Жеке кабинет{% endblock %}
 
 {% block content %}
 <div class="row">
+  <!-- Левая колонка: Карточка профиля -->
   <div class="col-md-4">
-    <h3>Пайдаланушы профилі</h3>
-    <ul class="list-group">
-      <li class="list-group-item"><strong>ID:</strong> {{ user.id }}</li>
-      <li class="list-group-item"><strong>Пайдаланушының аты:</strong> {{ user.username }}</li>
-      <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
-    </ul>
+    <div class="card">
+      <img src="{{ url_for('static', filename='profile_images/' ~ user.profile_image) }}"
+           class="card-img-top" alt="Аватар пользователя">
+      <div class="card-body">
+        <h5 class="card-title">{{ user.username }}</h5>
+        {% if user.bio %}
+          <p class="card-text">{{ user.bio }}</p>
+        {% else %}
+          <p class="card-text text-muted">Өзі туралы ақпарат әлі енгізілмеген</p>
+        {% endif %}
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><strong>ID:</strong> {{ user.id }}</li>
+        <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
+        {% if user.last_login %}
+          <li class="list-group-item"><strong>Соңғы кіру:</strong> {{ user.last_login.strftime('%d.%m.%Y %H:%M') }}</li>
+        {% endif %}
+        {% if user.social_link %}
+          <li class="list-group-item">
+            <strong>Әлеуметтік желі:</strong>
+            <a href="{{ user.social_link }}" target="_blank">{{ user.social_link }}</a>
+          </li>
+        {% endif %}
+      </ul>
+      <div class="card-body">
+        <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-primary">Профильді өңдеу</a>
+        <!-- Кнопка переключения темы в карточке профиля -->
+        <button onclick="toggleTheme()" class="btn btn-outline-secondary">Тақырыпты ауыстыру</button>
+      </div>
+    </div>
   </div>
+
+  <!-- Правая колонка: Дополнительная информация -->
   <div class="col-md-8">
     <h3>Қосымша ақпарат</h3>
-    <p>Мұнда сіз соңғы әрекеттер туралы деректерді, статистиканы және пайдаланушы туралы басқа да маңызды ақпаратты орналастыра аласыз.</p>
+    <p>Мұнда сіз пайдаланушының статистикасы, соңғы әрекеттері немесе басқа маңызды ақпаратты көре аласыз.</p>
   </div>
 </div>
 {% endblock %}

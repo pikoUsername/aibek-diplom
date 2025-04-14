@@ -91,9 +91,10 @@ def predict():
         plt.savefig(plot_path)
         plt.close()
 
-        plot = Plot(user_id=current_user.id, plot_path=plot_path)
+        plot = Plot(user_id=current_user.id, plot_filename=plot_filename)
 
         db.session.add(plot)
+        db.session.commit()
 
         return render_template("predict.html", message="Болжам салынған!", plot_filename=plot_filename, data_files=data_files, model_files=model_files)
 

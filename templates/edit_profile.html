@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block title %}Профильді өңдеу{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h3 class="mb-4 text-center">Профильді өңдеу</h3>
+
+    {% if errors %}
+      <div class="alert alert-danger">
+        <ul>
+          {% for error in errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('auth.edit_profile') }}">
+      <div class="mb-3">
+        <label for="username" class="form-label">Пайдаланушының аты</label>
+        <input type="text" id="username" name="username" class="form-control" value="{{ user.username }}" required>
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required>
+      </div>
+      <div class="mb-3">
+        <label for="bio" class="form-label">Өзі туралы</label>
+        <textarea id="bio" name="bio" class="form-control" rows="3">{{ user.bio or '' }}</textarea>
+      </div>
+      <div class="mb-3">
+        <label for="social_link" class="form-label">Әлеуметтік желі сілтемесі</label>
+        <input type="text" id="social_link" name="social_link" class="form-control" value="{{ user.social_link or '' }}">
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Өңдеу</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

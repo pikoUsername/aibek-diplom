@@ -24,7 +24,13 @@ class User(UserMixin, BaseModel):
 
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)\
+
+    profile_image = db.Column(db.String(256), nullable=True, default="default.png")  # путь к аватару
+    bio = db.Column(db.Text, nullable=True)  # краткая информация о пользователе
+    last_login = db.Column(db.DateTime, nullable=True)  # время последнего входа
+    social_link = db.Column(db.String(256), nullable=True)  # ссылка на профиль в соцсетях (например, LinkedIn или Facebook)
+
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -34,4 +40,4 @@ class Plot(BaseModel):
     __tablename__ = "plots"
 
     user_id = db.Column(db.ForeignKey("users.id"), nullable=False)
-    plot_path = db.Column(db.String(256), nullable=False)
+    plot_filename = db.Column(db.String(256), nullable=False)

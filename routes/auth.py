@@ -1,8 +1,8 @@
 from urllib.parse import urlparse, urljoin
 
 import flask
-from flask import Blueprint, request, render_template, redirect, url_for, flash, session, abort
-from flask_login import login_user, logout_user, login_required
+from flask import Blueprint, request, render_template, redirect, url_for, flash, session, abort, current_app
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from db.user_repo import get_user_by_email, create_user, get_all_users
 from db.models import db, User
@@ -67,8 +67,11 @@ def register():
 
         # Если ошибок нет, регистрируем пользователя
         password_hash = generate_password_hash(password)
-        create_user(db.session, username, email, password_hash)
-        return redirect(url_for('auth.login'))
+        user = create_user(db.session, username, email, password_hash)
+
+        login_user(user, remember=True)
+
+        return redirect(url_for('index.index'))
     return render_template('register.html', errors=errors)
 
 
@@ -82,10 +85,7 @@ def logout():
 @auth_bp.route('/profile')
 @login_required
 def profile():
-    if 'user_id' not in session:
-        flash('Необходимо выполнить вход.', 'danger')
-        return redirect(url_for('auth.login'))
-    user = db.session.query(User).get(session['user_id'])
+    user = db.session.query(User).get(current_user.id)
     return render_template('profile.html', user=user)
 
 
@@ -94,3 +94,46 @@ def profile():
 def users():
     all_users = get_all_users(db.session)
     return render_template('users.html', users=all_users)
+
+
+@auth_bp.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    errors = []
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip()
+        bio = request.form.get('bio', '').strip()
+        social_link = request.form.get('social_link', '').strip()
+
+        # Проверка обязательных полей
+        if not username or not email:
+            errors.append("Пайдаланушының аты мен Email өрістері толтырылуы қажет!")
+
+        # Проверка уникальности username, если он изменён
+        if username != current_user.username:
+            user_with_username = User.query.filter(User.username == username).first()
+            if user_with_username:
+                errors.append("Бұл пайдаланушы аты бұрын қолданылған!")
+
+        # Проверка уникальности email, если он изменён
+        if email != current_user.email:
+            user_with_email = User.query.filter(User.email == email).first()
+            if user_with_email:
+                errors.append("Бұл email бұрын қолданылған!")
+
+        if not errors:
+            try:
+                current_user.username = username
+                current_user.email = email
+                current_user.bio = bio
+                current_user.social_link = social_link
+                db.session.commit()
+                flash("Профиль сәтті жаңартылды!", "success")
+                return redirect(url_for('auth.profile'))
+            except Exception as e:
+                db.session.rollback()
+                current_app.logger.exception("Профильді жаңарту кезінде қате: %s", e)
+                errors.append("Профильді жаңартқанда қате орын алды!")
+
+    return render_template('edit_profile.html', user=current_user, errors=errors)

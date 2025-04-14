@@ -57,9 +57,10 @@ def returns_predict():
         plt.savefig(plot_path)
         plt.close()
 
-        plot = Plot(user_id=current_user.id, plot_path=plot_path)
+        plot = Plot(user_id=current_user.id, plot_filename=plot_path)
 
         db.session.add(plot)
+        db.session.commit()
 
         return render_template("returns_predict.html", message="Болжам қалыптасты!", plot_filename=plot_filename, data_files=data_files, model_files=model_files)
     return render_template("returns_predict.html", message=None, plot_filename=None, data_files=data_files, model_files=model_files)
