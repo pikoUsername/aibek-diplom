@@ -1,11 +1,13 @@
 import os
 import uuid
 from flask import Blueprint, request, render_template, current_app
+from flask_login import login_required
 
 bp = Blueprint("upload", __name__, url_prefix="/upload_script")
 
 
 @bp.route("/", methods=["GET", "POST"], endpoint="upload_script")
+@login_required
 def upload_script():
     if request.method == "POST":
         script_code = request.form.get("script_code")

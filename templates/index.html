@@ -2,21 +2,21 @@
 {% block content %}
 <div class="row">
   <div class="col-md-6">
-    <h2>Загрузка CSV</h2>
+    <h2>CSV жүктеу</h2>
     {% if message %}
       <div class="alert alert-info">{{ message }}</div>
     {% endif %}
     <form method="POST" enctype="multipart/form-data">
       <div class="mb-3">
-        <label for="file" class="form-label">Выберите CSV-файл:</label>
+        <label for="file" class="form-label">CSV файлын таңдаңыз:</label>
         <input class="form-control" type="file" name="file" required>
       </div>
-      <button type="submit" class="btn btn-primary">Загрузить</button>
+      <button type="submit" class="btn btn-primary">Жүктеу</button>
     </form>
   </div>
   <div class="col-md-6">
-    <h2>Описание</h2>
-    <p>Здесь можно загрузить CSV-файл с данными для последующего обучения модели SARIMA и прогнозирования.</p>
+    <h2>Сипаттама</h2>
+    <p>Мұнда SARIMA моделін кейіннен оқыту және болжау үшін CSV файлын деректермен жүктеуге болады.</p>
   </div>
 </div>
 {% endblock %}

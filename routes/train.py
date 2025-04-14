@@ -4,12 +4,14 @@ import uuid
 import pickle
 import json
 from flask import Blueprint, render_template, request, current_app
+from flask_login import login_required
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 
 bp = Blueprint("train", __name__, url_prefix="/train")
 
 
 @bp.route("/", methods=["GET", "POST"])
+@login_required
 def train():
     data_files = [f for f in os.listdir(current_app.config["UPLOAD_FOLDER"]) if f.endswith(".csv")]
 

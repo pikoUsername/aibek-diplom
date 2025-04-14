@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Расчёт метрик (MSE, RMSE, MAPE)</h2>
+<h2>Көрсеткіштерді есептеу (MSE, RMSE, MAPE)</h2>
 {% if message %}
   <div class="alert alert-info">{{ message }}</div>
 {% endif %}
@@ -10,7 +10,7 @@
   <div class="col-md-3">
     <label class="form-label">CSV-файл:</label>
     <select name="csv_filename" class="form-select" required>
-      <option value="" disabled selected>-- выберите CSV --</option>
+      <option value="" disabled selected>-- CSV таңдаңыз --</option>
       {% for df in data_files %}
         <option value="{{ df }}">{{ df }}</option>
       {% endfor %}
@@ -19,11 +19,11 @@
 
   <!-- Столбцы -->
   <div class="col-md-3">
-    <label class="form-label">Столбец с датами:</label>
+    <label class="form-label">Күндермен баған:</label>
     <input type="text" name="date_col" class="form-control" required>
   </div>
   <div class="col-md-3">
-    <label class="form-label">Столбец-таргет:</label>
+    <label class="form-label">Баған-мақсат:</label>
     <input type="text" name="target_col" class="form-control" required>
   </div>
 
@@ -31,7 +31,7 @@
   <div class="col-md-3">
     <label class="form-label">Модель:</label>
     <select name="model_name" class="form-select" required>
-      <option value="" disabled selected>-- выберите модель --</option>
+      <option value="" disabled selected>-- модельді таңдаңыз --</option>
       {% for mn in model_files %}
         <option value="{{ mn }}">{{ mn }}</option>
       {% endfor %}
@@ -39,23 +39,23 @@
   </div>
 
   <div class="col-md-3">
-    <label class="form-label">Test size (доля теста):</label>
+    <label class="form-label">Test size (тест үлесі):</label>
     <input type="number" step="0.1" name="test_size" class="form-control" value="0.5">
   </div>
 
   <div class="col-12">
-    <button type="submit" class="btn btn-secondary">Рассчитать метрики</button>
+    <button type="submit" class="btn btn-secondary">Көрсеткіштерді есептеу</button>
   </div>
 </form>
 
 {% if metrics_dict %}
   <hr>
-  <h4>Результаты:</h4>
+  <h4>Нәтиже:</h4>
   <table class="table table-bordered w-50">
     <thead>
       <tr>
-        <th>Метрика</th>
-        <th>Значение</th>
+        <th>Көрсеткіш</th>
+        <th>Мәні</th>
       </tr>
     </thead>
     <tbody>

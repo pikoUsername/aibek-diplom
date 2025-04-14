@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Загрузить/Создать пользовательский скрипт</h2>
+<h2>Пайдаланушы сценарийін жүктеу/жасау</h2>
 
 {% if message %}
   <div class="alert alert-info">{{ message }}</div>
@@ -8,20 +8,20 @@
 
 <form method="POST" class="mb-3">
   <div class="mb-3">
-    <label class="form-label">Имя скрипта (опционально, без .py тоже можно)</label>
+    <label class="form-label">Сценарий атауы (міндетті емес, .py-сыз болады)</label>
     <input type="text" name="script_name" class="form-control" placeholder="my_transform" />
   </div>
   <div class="mb-3">
-    <label class="form-label">Код скрипта (Python):</label>
-    <textarea name="script_code" rows="10" class="form-control" placeholder="Напишите здесь Python код..."></textarea>
+    <label class="form-label">Сценарий коды (Python):</label>
+    <textarea name="script_code" rows="10" class="form-control" placeholder="Мұнда Python кодын жазыңыз..."></textarea>
   </div>
-  <button type="submit" class="btn btn-primary">Сохранить скрипт</button>
+  <button type="submit" class="btn btn-primary">Сценарийді сақтау</button>
 </form>
 
-<p>Пример кода, который вы можете вставить:</p>
+<p>Сізге қоюға болатын мысал коды:</p>
 <pre>
-# Например, добавим новый столбец
-# или агрегируем данные по дате:
+# Мысалы, жаңа баған қосыңыз
+# немесе деректерді күні бойынша жинақтаңыз:
 df['Date'] = pd.to_datetime(df['Date'])
 df = df.groupby('Date')['Total'].sum().reset_index()
 </pre>

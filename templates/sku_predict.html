@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Предсказание модели по SKU</h2>
+<h2>SKU бойынша модельді болжау</h2>
 {% if message %}
   <div class="alert alert-info">{{ message }}</div>
 {% endif %}
@@ -8,46 +8,46 @@
   <div class="mb-3">
     <label for="csv_filename" class="form-label">CSV‑файл:</label>
     <select name="csv_filename" id="csv_filename" class="form-select" required>
-      <option value="" disabled selected>-- выберите CSV --</option>
+      <option value="" disabled selected>-- CSV таңдаңыз --</option>
       {% for f in data_files %}
       <option value="{{ f }}">{{ f }}</option>
       {% endfor %}
     </select>
   </div>
   <div class="mb-3">
-    <label for="date_col" class="form-label">Столбец даты:</label>
+    <label for="date_col" class="form-label">мезгіл бағаны:</label>
     <input type="text" name="date_col" id="date_col" class="form-control" required>
   </div>
   <div class="mb-3">
-    <label for="sku_col" class="form-label">Столбец SKU:</label>
+    <label for="sku_col" class="form-label">SKU бағаны:</label>
     <input type="text" name="sku_col" id="sku_col" class="form-control" required>
   </div>
   <div class="mb-3">
-    <label for="sales_col" class="form-label">Столбец продаж:</label>
+    <label for="sales_col" class="form-label">Сату бағанасы:</label>
     <input type="text" name="sales_col" id="sales_col" class="form-control" required>
   </div>
   <div class="mb-3">
-    <label for="sku_value" class="form-label">Значение SKU:</label>
+    <label for="sku_value" class="form-label">SKU мәні:</label>
     <input type="text" name="sku_value" id="sku_value" class="form-control" required>
   </div>
   <div class="mb-3">
-    <label for="model_name" class="form-label">Выберите модель:</label>
+    <label for="model_name" class="form-label">Модельді таңдаңыз:</label>
     <select name="model_name" id="model_name" class="form-select" required>
-      <option value="" disabled selected>-- выберите модель --</option>
+      <option value="" disabled selected>-- модельді таңдаңыз --</option>
       {% for mf in model_files %}
       <option value="{{ mf }}">{{ mf }}</option>
       {% endfor %}
     </select>
   </div>
   <div class="mb-3">
-    <label for="forecast_steps" class="form-label">Горизонт прогноза (дней):</label>
+    <label for="forecast_steps" class="form-label">Болжам көкжиегі (күндер):</label>
     <input type="number" name="forecast_steps" id="forecast_steps" class="form-control" value="14">
   </div>
-  <button type="submit" class="btn btn-primary">Сформировать прогноз</button>
+  <button type="submit" class="btn btn-primary">Болжамды қалыптастыру</button>
 </form>
 {% if plot_filename %}
 <hr>
-<h4>Результат прогноза:</h4>
-<img src="{{ url_for('static', filename='plots/' ~ plot_filename) }}" class="img-fluid" alt="Прогноз по SKU">
+<h4>Болжам нәтижесі:</h4>
+<img src="{{ url_for('static', filename='plots/' ~ plot_filename) }}" class="img-fluid" alt="SKU болжамы">
 {% endif %}
 {% endblock %}

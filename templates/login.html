@@ -4,7 +4,7 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-6">
-    <h2 class="mb-4 text-center">Вход в систему</h2>
+    <h2 class="mb-4 text-center">Жүйеге кіру</h2>
     {% if errors %}
       <div class="alert alert-danger">
         <ul>
@@ -16,17 +16,17 @@
     {% endif %}
     <form method="POST" action="{{ url_for('auth.login') }}">
       <div class="mb-3">
-        <label for="email" class="form-label">Электронная почта</label>
+        <label for="email" class="form-label">Электрондық пошта</label>
         <input type="email" class="form-control" id="email" name="email" value="{{ email or '' }}" placeholder="Введите email" required>
       </div>
       <div class="mb-3">
-        <label for="password" class="form-label">Пароль</label>
+        <label for="password" class="form-label">Құпия сөз</label>
         <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль" required>
       </div>
-      <button type="submit" class="btn btn-primary w-100">Войти</button>
+      <button type="submit" class="btn btn-primary w-100">Кіру</button>
     </form>
     <p class="text-center mt-3">
-      Нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрируйтесь</a>
+      Аккаунт жоқ па? <a href="{{ url_for('auth.register') }}">Тіркеліңіз</a>
     </p>
   </div>
 </div>

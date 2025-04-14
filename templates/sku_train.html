@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Обучение модели по SKU</h2>
+<h2>SKU бойынша модельді болжау</h2>
 {% if message %}
   <div class="alert alert-info">{{ message }}</div>
 {% endif %}
@@ -8,30 +8,30 @@
   <div class="mb-3">
     <label for="csv_filename" class="form-label">CSV‑файл:</label>
     <select name="csv_filename" id="csv_filename" class="form-select" required>
-      <option value="" disabled selected>-- выберите CSV --</option>
+      <option value="" disabled selected>-- CSV таңдаңыз --</option>
       {% for f in data_files %}
       <option value="{{ f }}">{{ f }}</option>
       {% endfor %}
     </select>
   </div>
   <div class="mb-3">
-    <label for="date_col" class="form-label">Столбец даты:</label>
+    <label for="date_col" class="form-label">мезгіл бағаны:</label>
     <input type="text" name="date_col" id="date_col" class="form-control" required>
   </div>
   <div class="mb-3">
-    <label for="sku_col" class="form-label">Столбец SKU:</label>
+    <label for="sku_col" class="form-label">SKU бағаны:</label>
     <input type="text" name="sku_col" id="sku_col" class="form-control" required>
   </div>
   <div class="mb-3">
-    <label for="sales_col" class="form-label">Столбец продаж:</label>
+    <label for="sales_col" class="form-label">Сату бағанасы:</label>
     <input type="text" name="sales_col" id="sales_col" class="form-control" required>
   </div>
   <div class="mb-3">
-    <label for="sku_value" class="form-label">Значение SKU:</label>
+    <label for="sku_value" class="form-label">SKU мәні:</label>
     <input type="text" name="sku_value" id="sku_value" class="form-control" required>
   </div>
   <div class="mb-3">
-    <label for="model_name" class="form-label">Имя модели:</label>
+    <label for="model_name" class="form-label">Модель атауы:</label>
     <input type="text" name="model_name" id="model_name" class="form-control" placeholder="sku_model_123">
   </div>
   <div class="mb-3">
@@ -44,12 +44,12 @@
   </div>
   <!-- Dynamic дополнительные параметры -->
   <div class="mb-3">
-    <h4>Дополнительные параметры модели</h4>
+    <h4>Қосымша модель параметрлері</h4>
     <div id="dynamic-params"></div>
-    <button type="button" id="add-param" class="btn btn-secondary">Добавить параметр</button>
+    <button type="button" id="add-param" class="btn btn-secondary">Параметрді қосу</button>
   </div>
   <input type="hidden" name="additional_params" id="additional_params">
-  <button type="submit" class="btn btn-primary">Обучить модель по SKU</button>
+  <button type="submit" class="btn btn-primary">SKU бойынша моделді үйрету</button>
 </form>
 
 <script>

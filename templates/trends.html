@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Тренды по категориям</h2>
+<h2>Санаттар бойынша трендтер</h2>
 {% if message %}
   <div class="alert alert-info">{{ message }}</div>
 {% endif %}
@@ -8,29 +8,29 @@
   <div class="mb-3">
     <label for="csv_filename" class="form-label">CSV‑файл:</label>
     <select name="csv_filename" id="csv_filename" class="form-select" required>
-      <option value="" disabled selected>-- выберите CSV --</option>
+      <option value="" disabled selected>-- CSV таңдаңыз --</option>
       {% for f in data_files %}
       <option value="{{ f }}">{{ f }}</option>
       {% endfor %}
     </select>
   </div>
   <div class="mb-3">
-    <label for="date_col" class="form-label">Столбец даты:</label>
+    <label for="date_col" class="form-label">мезгіл бағаны:</label>
     <input type="text" name="date_col" id="date_col" class="form-control" required>
   </div>
   <div class="mb-3">
-    <label for="category_col" class="form-label">Столбец категории:</label>
+    <label for="category_col" class="form-label">Санат бағаны:</label>
     <input type="text" name="category_col" id="category_col" class="form-control" required>
   </div>
   <div class="mb-3">
-    <label for="sales_col" class="form-label">Столбец продаж:</label>
+    <label for="sales_col" class="form-label">Сату бағанасы:</label>
     <input type="text" name="sales_col" id="sales_col" class="form-control" required>
   </div>
-  <button type="submit" class="btn btn-primary">Построить тренды</button>
+  <button type="submit" class="btn btn-primary">Трендтерді құру</button>
 </form>
 {% if plot_filename %}
 <hr>
-<h4>Результат:</h4>
-<img src="{{ url_for('static', filename='plots/' ~ plot_filename) }}" class="img-fluid" alt="Тренды по категориям">
+<h4>Нәтиже:</h4>
+<img src="{{ url_for('static', filename='plots/' ~ plot_filename) }}" class="img-fluid" alt="Санаттар бойынша трендтер">
 {% endif %}
 {% endblock %}

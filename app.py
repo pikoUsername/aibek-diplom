@@ -1,6 +1,8 @@
 from flask import Flask
 from config import Config
 from db.models import db, init_db
+from routes.error_handlers import register_error_handlers
+from services.login_manager import init_login_manager
 
 
 def create_app():
@@ -27,6 +29,7 @@ def create_app():
     from routes.transform import bp as transfer_data
     from routes.auth import auth_bp
 
+    register_error_handlers(app)
     app.register_blueprint(index_bp)
     app.register_blueprint(transfer_data)
     app.register_blueprint(data_bp)
@@ -47,8 +50,10 @@ def create_app():
     app.register_blueprint(auth_bp)
 
     init_db(app)
+    init_login_manager(app)
 
     return app
+
 
 if __name__ == "__main__":
     app = create_app()

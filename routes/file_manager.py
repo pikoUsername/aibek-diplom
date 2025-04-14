@@ -32,11 +32,11 @@ def delete_file():
 
     folder = folder_map.get(file_type)
     if not folder or not filename:
-        return "Некорректный тип файла или имя", 400
+        return "Қате файл түрі немесе аты", 400
 
     filepath = os.path.join(folder, filename)
     if os.path.exists(filepath):
         os.remove(filepath)
         return redirect(url_for("file_manager.file_manager"))
     else:
-        return f"Файл {filename} не найден", 404
+        return f"Файл {filename} табылмады", 404

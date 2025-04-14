@@ -18,5 +18,5 @@ def index():
             df.dropna(inplace=True)
             df.to_csv(filepath, index=False)
 
-            return render_template("index.html", message=f"Файл '{filename}' успешно загружен!")
+            return render_template("index.html", message=f"Файл '{filename}' жүктелді!")
     return render_template("index.html", message=None)

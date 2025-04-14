@@ -6,6 +6,7 @@ from flask import Blueprint, render_template, request, current_app
 
 bp = Blueprint("trends", __name__, url_prefix="/trends")
 
+
 @bp.route("/", methods=["GET", "POST"])
 def trends():
     data_files = [f for f in os.listdir(current_app.config["UPLOAD_FOLDER"]) if f.endswith(".csv")]

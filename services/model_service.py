@@ -1,6 +1,7 @@
 import pickle
 from pmdarima.arima import auto_arima
 
+
 def train_sarima_model(ts, seasonal_period=7):
     """
     Обучает SARIMA-модель на временном ряду ts.

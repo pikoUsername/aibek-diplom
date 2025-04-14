@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
   <meta charset="UTF-8">
   <title>SARIMA App</title>
@@ -29,69 +29,74 @@
         <ul class="navbar-nav me-auto">
           <!-- Основные пункты меню -->
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('index.index') }}">Главная</a>
+            <a class="nav-link" href="{{ url_for('index.index') }}">Басты бет</a>
           </li>
           <!-- Dropdown: Обучение модели -->
+          {% if current_user.is_authenticated %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownTraining"
                role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Обучение модели
+              Модельді оқыту
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdownTraining">
-              <li><a class="dropdown-item" href="{{ url_for('train.train') }}">Общее обучение модели</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('sku_train.sku_train') }}">Обучение по SKU</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('exog_train.exog_train') }}">Обучение с экзогенными</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('returns_train.returns_train') }}">Обучение прогноз возвратов</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('train.train') }}">Модельді жалпы оқыту</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('sku_train.sku_train') }}">SKU бойынша оқыту</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('exog_train.exog_train') }}">Экзогенді оқыту</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('returns_train.returns_train') }}">Оқыту қайтару болжамы</a></li>
             </ul>
           </li>
           <!-- Dropdown: Предсказание -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPredict"
                role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Предсказание
+              Болжам
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdownPredict">
-              <li><a class="dropdown-item" href="{{ url_for('predict.predict') }}">Общее предсказание</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('sku_predict.sku_predict') }}">Предсказание по SKU</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('exog_predict.exog_predict') }}">Предсказание с экзогенными</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('returns_predict.returns_predict') }}">Прогноз возвратов</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('predict.predict') }}">Жалпы болжам</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('sku_predict.sku_predict') }}">SKU бойынша болжам</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('exog_predict.exog_predict') }}">Экзогенді болжау</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('returns_predict.returns_predict') }}">Қайтару болжамы</a></li>
             </ul>
           </li>
-          <!-- Остальные пункты меню -->
+
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('metrics.metrics') }}">Метрики</a>
+            <a class="nav-link" href="{{ url_for('metrics.metrics') }}">Көрсеткіштер</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('history.history') }}">Графиктердің тарихы</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('history.history') }}">История графиков</a>
+            <a class="nav-link" href="{{ url_for('upload.upload_script') }}">Сценарийді жүктеу</a>
           </li>
+
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('upload.upload_script') }}">Загрузить скрипт</a>
+            <a class="nav-link" href="{{ url_for('file_manager.file_manager') }}">Файлдар менеджері</a>
           </li>
+
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('file_manager.file_manager') }}">Менеджер файлов</a>
+            <a class="nav-link" href="{{ url_for('transform.transform_data') }}">Деректерді түрлендіру</a>
           </li>
+          {% endif %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('view_data.view_data') }}">Просмотр данных</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('transform.transform_data') }}">Прообразовать данные</a>
+            <a class="nav-link" href="{{ url_for('view_data.view_data') }}">Деректерді қарау</a>
           </li>
         </ul>
         <!-- Блок авторизации -->
         <ul class="navbar-nav">
-          {% if session.get('user_id') %}
+          {% if current_user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('auth.profile') }}">Профиль</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('auth.logout') }}">Выход</a>
+              <a class="nav-link" href="{{ url_for('auth.logout') }}">Шығу</a>
             </li>
           {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('auth.login') }}">Вход</a>
+              <a class="nav-link" href="{{ url_for('auth.login') }}">Кіру</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('auth.register') }}">Регистрация</a>
+              <a class="nav-link" href="{{ url_for('auth.register') }}">Тіркелу</a>
             </li>
           {% endif %}
         </ul>

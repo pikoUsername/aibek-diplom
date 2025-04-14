@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Менеджер файлов</h2>
+<h2>Файлдар менеджері</h2>
 
 <!-- Блок: Data Files -->
 <h3>Data Files (./data)</h3>
@@ -9,7 +9,7 @@
     <li>
       {{ df }}
       <a href="{{ url_for('file_manager.delete_file', file_type='data', filename=df) }}"
-         class="btn btn-sm btn-danger">Удалить</a>
+         class="btn btn-sm btn-danger">Жою</a>
     </li>
   {% endfor %}
 </ul>
@@ -21,7 +21,7 @@
     <li>
       {{ mf }}
       <a href="{{ url_for('file_manager.delete_file', file_type='model', filename=mf) }}"
-         class="btn btn-sm btn-danger">Удалить</a>
+         class="btn btn-sm btn-danger">Жою</a>
     </li>
   {% endfor %}
 </ul>
@@ -33,7 +33,7 @@
     <li>
       {{ sf }}
       <a href="{{ url_for('file_manager.delete_file', file_type='script', filename=sf) }}"
-         class="btn btn-sm btn-danger">Удалить</a>
+         class="btn btn-sm btn-danger">Жою</a>
     </li>
   {% endfor %}
 </ul>
@@ -45,7 +45,7 @@
     <li>
       {{ pf }}
       <a href="{{ url_for('file_manager.delete_file', file_type='plot', filename=pf) }}"
-         class="btn btn-sm btn-danger">Удалить</a>
+         class="btn btn-sm btn-danger">Жою</a>
     </li>
   {% endfor %}
 </ul>

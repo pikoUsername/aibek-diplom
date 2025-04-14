@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Предсказание модели</h2>
+<h2>Модель болжамы</h2>
 {% if message %}
   <div class="alert alert-info">{{ message }}</div>
 {% endif %}
@@ -8,7 +8,7 @@
   <div class="mb-3">
     <label for="csv_filename" class="form-label">CSV‑файл:</label>
     <select name="csv_filename" id="csv_filename" class="form-select" required>
-      <option value="" disabled selected>-- выберите CSV --</option>
+      <option value="" disabled selected>-- CSV таңдаңыз --</option>
       {% for f in data_files %}
       <option value="{{ f }}">{{ f }}</option>
       {% endfor %}

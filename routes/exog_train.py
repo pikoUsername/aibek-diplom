@@ -4,11 +4,15 @@ import uuid
 import pickle
 import json
 from flask import Blueprint, render_template, request, current_app
+from flask_login import login_required
 from statsmodels.tsa.statespace.sarimax import SARIMAX
+
+from services.login_manager import login_manager
 
 bp = Blueprint("exog_train", __name__, url_prefix="/train_exog")
 
 @bp.route("/", methods=["GET", "POST"])
+@login_required
 def exog_train():
     data_files = [f for f in os.listdir(current_app.config["UPLOAD_FOLDER"]) if f.endswith(".csv")]
 
@@ -26,29 +30,29 @@ def exog_train():
             order = tuple(int(x.strip()) for x in order_str.split(",")) if order_str else (1,1,1)
             if len(order) != 3: raise ValueError
         except Exception:
-            return render_template("exog_train.html", message="Неверный формат order.", data_files=data_files)
+            return render_template("exog_train.html", message="Қате order форматы.", data_files=data_files)
         try:
             seasonal_order = tuple(int(x.strip()) for x in seasonal_order_str.split(",")) if seasonal_order_str else (1,1,1,7)
             if len(seasonal_order) != 4: raise ValueError
         except Exception:
-            return render_template("exog_train.html", message="Неверный формат seasonal_order.", data_files=data_files)
+            return render_template("exog_train.html", message="Қате seasonal_order форматы.", data_files=data_files)
         try:
             additional_params = json.loads(additional_params_str)
         except Exception as e:
-            return render_template("exog_train.html", message=f"Неверный формат дополнительных параметров: {e}", data_files=data_files)
+            return render_template("exog_train.html", message=f"Қосымша опциялардың дұрыс емес форматы: {e}", data_files=data_files)
 
         filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], csv_filename)
         if not os.path.exists(filepath):
-            return render_template("exog_train.html", message=f"Файл {csv_filename} не найден!", data_files=data_files)
+            return render_template("exog_train.html", message=f"Файл {csv_filename} табылмады!", data_files=data_files)
         df = pd.read_csv(filepath)
         for col in [date_col, target_col]:
             if col not in df.columns:
-                return render_template("exog_train.html", message=f"Столбец {col} отсутствует.", data_files=data_files)
+                return render_template("exog_train.html", message=f"Жол {col} табылмады.", data_files=data_files)
         if exog_cols_str:
             exog_cols = [col.strip() for col in exog_cols_str.split(",") if col.strip()]
             missing = [col for col in exog_cols if col not in df.columns]
             if missing:
-                return render_template("exog_train.html", message=f"Отсутствуют экзогенные столбцы: {missing}", data_files=data_files)
+                return render_template("exog_train.html", message=f"Экзогендік бағандар жоқ: {missing}", data_files=data_files)
             exog_data = df[exog_cols]
         else:
             exog_cols = None
@@ -63,7 +67,7 @@ def exog_train():
                             enforce_stationarity=False, enforce_invertibility=False,
                             **additional_params).fit(disp=False)
         except Exception as e:
-            return render_template("exog_train.html", message=f"Ошибка обучения модели: {e}", data_files=data_files)
+            return render_template("exog_train.html", message=f"Модельді оқыту қатесі: {e}", data_files=data_files)
 
         model_package = {
             "model": model,
@@ -76,5 +80,5 @@ def exog_train():
         with open(save_path, "wb") as f:
             pickle.dump(model_package, f)
 
-        return render_template("exog_train.html", message=f"Модель '{model_name}' обучена и сохранена!", data_files=data_files)
+        return render_template("exog_train.html", message=f"Модель '{model_name}' оқытылды және сақталды!", data_files=data_files)
     return render_template("exog_train.html", message=None, data_files=data_files)

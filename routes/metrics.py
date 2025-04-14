@@ -14,7 +14,7 @@ def metrics():
 
     data_files = [f for f in os.listdir(current_app.config["UPLOAD_FOLDER"]) if f.endswith(".csv")]
     model_files = [m[:-4] for m in os.listdir(current_app.config["MODEL_FOLDER"]) if m.endswith(".pkl")]
-    script_files = get_script_list("scripts/")  # предполагается, что папка с пользовательскими скриптами хранится здесь
+    script_files = get_script_list("scripts/")
 
     if request.method == "POST":
 
@@ -29,7 +29,7 @@ def metrics():
         filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], csv_filename)
         if not os.path.exists(filepath):
             return render_template("metrics.html",
-                                   message=f"Файл {csv_filename} не найден!",
+                                   message=f"Файл {csv_filename} табылмады!",
                                    metrics_dict=None,
                                    data_files=data_files,
                                    model_files=model_files,
@@ -39,7 +39,7 @@ def metrics():
         model_path = os.path.join(current_app.config["MODEL_FOLDER"], f"{model_name}.pkl")
         if not os.path.exists(model_path):
             return render_template("metrics.html",
-                                   message=f"Модель {model_name} не найдена!",
+                                   message=f"Модель {model_name} табылмады!",
                                    metrics_dict=None,
                                    data_files=data_files,
                                    model_files=model_files,
@@ -56,7 +56,7 @@ def metrics():
 
         if date_col not in df.columns or target_col not in df.columns:
             return render_template("metrics.html",
-                                   message=f"Нет колонок {date_col} или {target_col} в данных!",
+                                   message=f"Бағандар {date_col} немесе {target_col} деректерде жоқ!",
                                    metrics_dict=None,
                                    data_files=data_files,
                                    model_files=model_files,
@@ -81,7 +81,7 @@ def metrics():
 
             metrics_dict = {"MSE": 0.0, "RMSE": 0.0, "MAPE (%)": 0.0}
             return render_template("metrics.html",
-                                   message="Недостаточно данных, выданы фиктивные метрики.",
+                                   message="Деректер жеткіліксіз, жалған көрсеткіштер берілген.",
                                    metrics_dict=metrics_dict,
                                    data_files=data_files,
                                    model_files=model_files,
@@ -101,7 +101,7 @@ def metrics():
             missing_exog = [col for col in exog_cols if col not in df.columns]
             if missing_exog:
                 return render_template("metrics.html",
-                                       message=f"Отсутствуют экзогенные переменные: {missing_exog}",
+                                       message=f"Экзогендік айнымалылар жоқ: {missing_exog}",
                                        metrics_dict=None,
                                        data_files=data_files,
                                        model_files=model_files,
@@ -122,7 +122,7 @@ def metrics():
                     fitted_model = base_model.fit(train_data)
             except Exception as e:
                 return render_template("metrics.html",
-                                       message=f"Ошибка переобучения модели: {e}",
+                                       message=f"Модельді қайта даярлау қатесі: {e}",
                                        metrics_dict=None,
                                        data_files=data_files,
                                        model_files=model_files,
@@ -148,7 +148,7 @@ def metrics():
                     forecast_vals = fitted_model.predict(start=len(train_data), end=len(train_data)+len(test_data)-1)
         except Exception as e:
             return render_template("metrics.html",
-                                   message=f"Ошибка при прогнозировании: {e}",
+                                   message=f"Болжау қатесі: {e}",
                                    metrics_dict=None,
                                    data_files=data_files,
                                    model_files=model_files,
@@ -171,7 +171,7 @@ def metrics():
             if min_len == 0:
                 metrics_dict = {"MSE": 0.0, "RMSE": 0.0, "MAPE (%)": 0.0}
                 return render_template("metrics.html",
-                                       message="Нет данных для прогноза, выданы фиктивные метрики.",
+                                       message="Болжам үшін деректер жоқ, жалған көрсеткіштер берілген.",
                                        metrics_dict=metrics_dict,
                                        data_files=data_files,
                                        model_files=model_files,
@@ -195,7 +195,7 @@ def metrics():
         }
 
         return render_template("metrics.html",
-                               message="Метрики успешно рассчитаны!",
+                               message="Көрсеткіштер сәтті есептелді!",
                                metrics_dict=metrics_dict,
                                data_files=data_files,
                                model_files=model_files,

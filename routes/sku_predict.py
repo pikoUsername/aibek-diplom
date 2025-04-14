@@ -3,12 +3,15 @@ import pandas as pd
 import uuid
 import pickle
 from flask import Blueprint, render_template, request, current_app
-from statsmodels.tsa.statespace.sarimax import SARIMAX
 import matplotlib.pyplot as plt
+from flask_login import login_required, current_user
+
+from db.models import Plot, db
 
 bp = Blueprint("sku_predict", __name__, url_prefix="/predict_sku")
 
 @bp.route("/", methods=["GET", "POST"])
+@login_required
 def sku_predict():
     data_files = [f for f in os.listdir(current_app.config["UPLOAD_FOLDER"]) if f.endswith(".csv")]
     model_files = [m[:-4] for m in os.listdir(current_app.config["MODEL_FOLDER"]) if m.endswith(".pkl") and m.startswith("sku_")]
@@ -59,6 +62,10 @@ def sku_predict():
         plot_path = os.path.join(current_app.config["PLOT_FOLDER"], plot_filename)
         plt.savefig(plot_path)
         plt.close()
+
+        plot = Plot(user_id=current_user.id, plot_path=plot_path)
+
+        db.session.add(plot)
 
         return render_template("sku_predict.html", message="Прогноз сформирован!", plot_filename=plot_filename, data_files=data_files, model_files=model_files)
     return render_template("sku_predict.html", message=None, plot_filename=None, data_files=data_files, model_files=model_files)

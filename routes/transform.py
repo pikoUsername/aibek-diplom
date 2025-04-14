@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import traceback
 from flask import Blueprint, render_template, request, current_app, send_file
+from flask_login import login_required
+
 from helpers.script_utils import get_script_list, apply_transform_code
 from pygments import highlight
 from pygments.lexers import PythonLexer
@@ -29,6 +31,7 @@ def get_rows_to_show(code):
 
 
 @bp.route("/", methods=["GET", "POST"])
+@login_required
 def transform_data():
     data_files = [f for f in os.listdir(current_app.config["UPLOAD_FOLDER"]) if f.endswith(".csv")]
     script_files = get_script_list(current_app.config["SCRIPT_FOLDER"])

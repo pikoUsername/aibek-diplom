@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Обучение модели с экзогенными переменными</h2>
+<h2>Экзогендік айнымалылары бар модельді оқыту</h2>
 {% if message %}
   <div class="alert alert-info">{{ message }}</div>
 {% endif %}
@@ -8,26 +8,26 @@
   <div class="mb-3">
     <label for="csv_filename" class="form-label">CSV‑файл:</label>
     <select name="csv_filename" id="csv_filename" class="form-select" required>
-      <option value="" disabled selected>-- выберите CSV --</option>
+      <option value="" disabled selected>-- CSV таңдаңыз --</option>
       {% for f in data_files %}
       <option value="{{ f }}">{{ f }}</option>
       {% endfor %}
     </select>
   </div>
   <div class="mb-3">
-    <label for="date_col" class="form-label">Столбец даты:</label>
+    <label for="date_col" class="form-label">Деректер бағаны:</label>
     <input type="text" name="date_col" id="date_col" class="form-control" required>
   </div>
   <div class="mb-3">
-    <label for="target_col" class="form-label">Столбец таргет:</label>
+    <label for="target_col" class="form-label">Мақсатты баған:</label>
     <input type="text" name="target_col" id="target_col" class="form-control" required>
   </div>
   <div class="mb-3">
-    <label for="exog_cols" class="form-label">Экзогенные переменные (через запятую):</label>
+    <label for="exog_cols" class="form-label">Экзогендік айнымалылар (үтір арқылы):</label>
     <input type="text" name="exog_cols" id="exog_cols" class="form-control" placeholder="promo,holiday">
   </div>
   <div class="mb-3">
-    <label for="model_name" class="form-label">Имя модели:</label>
+    <label for="model_name" class="form-label">Модель аты:</label>
     <input type="text" name="model_name" id="model_name" class="form-control" placeholder="exog_model_123">
   </div>
   <div class="mb-3">
@@ -40,12 +40,12 @@
   </div>
   <!-- Dynamic дополнительные параметры -->
   <div class="mb-3">
-    <h4>Дополнительные параметры модели</h4>
+    <h4>Қосымша модель параметрлері</h4>
     <div id="dynamic-params"></div>
-    <button type="button" id="add-param" class="btn btn-secondary">Добавить параметр</button>
+    <button type="button" id="add-param" class="btn btn-secondary">Параметрді қосу</button>
   </div>
   <input type="hidden" name="additional_params" id="additional_params">
-  <button type="submit" class="btn btn-primary">Обучить модель с экзогенными</button>
+  <button type="submit" class="btn btn-primary">Экзогендік модельді үйрету</button>
 </form>
 
 <script>

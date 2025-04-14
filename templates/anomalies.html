@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Детектирование аномалий / всплесков</h2>
+<h2>Аномалияларды / шашырауларды анықтау</h2>
 {% if message %}
   <div class="alert alert-info">{{ message }}</div>
 {% endif %}
@@ -8,7 +8,7 @@
   <div class="mb-3">
     <label for="csv_filename" class="form-label">CSV‑файл:</label>
     <select name="csv_filename" id="csv_filename" class="form-select" required>
-      <option value="" disabled selected>-- выберите CSV --</option>
+      <option value="" disabled selected>--  CSV таңдаңыз --</option>
       {% for f in data_files %}
       <option value="{{ f }}">{{ f }}</option>
       {% endfor %}
@@ -22,11 +22,11 @@
     <label for="target_col" class="form-label">Столбец данных:</label>
     <input type="text" name="target_col" id="target_col" class="form-control" required>
   </div>
-  <button type="submit" class="btn btn-primary">Найти аномалии</button>
+  <button type="submit" class="btn btn-primary">Аномалияны іздеу</button>
 </form>
 {% if plot_filename %}
 <hr>
-<h4>Результат:</h4>
-<img src="{{ url_for('static', filename='plots/' ~ plot_filename) }}" class="img-fluid" alt="Аномалии">
+<h4>Нәтиже:</h4>
+<img src="{{ url_for('static', filename='plots/' ~ plot_filename) }}" class="img-fluid" alt="Аномалиялар">
 {% endif %}
 {% endblock %}

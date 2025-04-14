@@ -1,9 +1,19 @@
-from flask import Blueprint, request, render_template, redirect, url_for, flash, session
+from urllib.parse import urlparse, urljoin
+
+import flask
+from flask import Blueprint, request, render_template, redirect, url_for, flash, session, abort
+from flask_login import login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from db.user_repo import get_user_by_email, create_user, get_all_users
 from db.models import db, User
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+
+
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -14,17 +24,22 @@ def login():
         email_value = request.form.get('email', '').strip()
         password = request.form.get('password', '')
 
-        # Проверяем, что оба поля заполнены
         if not email_value or not password:
-            errors.append("Пожалуйста, заполните все поля.")
+            errors.append("Барлық өрістерді толтырыңыз.")
         else:
             user = get_user_by_email(db.session, email_value)
+            # Для отладки: проверьте, что user получен
+            print("Получен пользователь:", user)
             if user and check_password_hash(user.password_hash, password):
-                session['user_id'] = user.id
-                return redirect(url_for('index.index'))
+                login_user(user, remember=True, force=True)
+                next_url = request.args.get('next')
+                if next_url and not is_safe_url(next_url):
+                    return abort(400)
+                return flask.redirect(next_url or flask.url_for('index.index'))
             else:
-                errors.append("Неверная почта или пароль.")
+                errors.append("Қате пошта немесе құпия сөз.")
     return render_template('login.html', errors=errors, email=email_value)
+
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
@@ -59,25 +74,23 @@ def register():
 
 @auth_bp.route('/logout')
 def logout():
-    session.pop('user_id', None)
+    logout_user()
     flash('Вы успешно вышли из системы.', 'success')
     return redirect(url_for('auth.login'))
 
 
-@auth_bp.route('/users')
-def users():
-    # Страница для отображения списка пользователей
-    if 'user_id' not in session:
-        flash('Необходимо выполнить вход.', 'error')
-        return redirect(url_for('auth.login'))
-    all_users = get_all_users(db.session)
-    return render_template('users.html', users=all_users)
-
-
 @auth_bp.route('/profile')
+@login_required
 def profile():
     if 'user_id' not in session:
         flash('Необходимо выполнить вход.', 'danger')
         return redirect(url_for('auth.login'))
     user = db.session.query(User).get(session['user_id'])
     return render_template('profile.html', user=user)
+
+
+@auth_bp.route('/users')
+@login_required
+def users():
+    all_users = get_all_users(db.session)
+    return render_template('users.html', users=all_users)

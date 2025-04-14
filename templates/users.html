@@ -1,14 +1,14 @@
 {% extends 'layout.html %}
 
-{% block title %} Список пользвателей {% endblock %}
+{% block title %} Пайдаланушылар тізімі {% endblock %}
 <body>
-    <h2>Пользователи системы</h2>
+    <h2>Жүйе пайдаланушылары</h2>
     <table border="1">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Имя пользователя</th>
-                <th>Электронная почта</th>
+                <th>Пайдаланушының аты</th>
+                <th>Электрондық пошта</th>
             </tr>
         </thead>
         <tbody>
@@ -21,6 +21,6 @@
             {% endfor %}
         </tbody>
     </table>
-    <p><a href="{{ url_for('auth.logout') }}">Выход</a></p>
+    <p><a href="{{ url_for('auth.logout') }}">Шығу</a></p>
 </body>
 </html>
