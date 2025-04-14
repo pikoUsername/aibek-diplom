@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Админ-панель: Пайдаланушылар тізімі</h2>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Аты</th>
+      <th>Email</th>
+      <th>Роль</th>
+      <th>Әрекет</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+    <tr>
+      <td>{{ user.id }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.role }}</td>
+      <td>
+        {% if user.id != current_user.id %}
+          <form method="POST" action="{{ url_for('auth.admin_change_role') }}" class="d-inline">
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <select name="new_role" class="form-select d-inline-block w-auto">
+              <option value="user" {% if user.role == 'user' %}selected{% endif %}>user</option>
+              <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>admin</option>
+              <option value="manager" {% if user.role == 'manager' %}selected{% endif %}>manager</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-primary">Сақтау</button>
+          </form>
+          <form method="POST" action="{{ url_for('auth.admin_delete_user') }}" class="d-inline">
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <button type="submit" class="btn btn-sm btn-danger">Жою</button>
+          </form>
+        {% else %}
+          <em>Өзіңіз</em>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

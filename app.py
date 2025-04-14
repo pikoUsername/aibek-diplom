@@ -3,6 +3,7 @@ from config import Config
 from db.models import db, init_db
 from routes.error_handlers import register_error_handlers
 from services.login_manager import init_login_manager
+from services.mail_manager import init_mail
 
 
 def create_app():
@@ -50,6 +51,7 @@ def create_app():
     app.register_blueprint(auth_bp)
 
     init_db(app)
+    init_mail(app)
     init_login_manager(app)
 
     return app

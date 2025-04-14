@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- Hero Section -->
+<section id="hero" class="py-5 bg-light">
+  <div class="container text-center">
+    <h1 class="display-3">Қош келдіңіз!</h1>
+    <p class="lead">
+      Сіздің деректерді талдау және болжау платформаңызға қош келдіңіз. Бұл жүйе уақыттық қатарларды сараптау, модельдерді оқыту, болжам жасау және аналитика жүргізу мүмкіндігін береді.
+    </p>
+    <a href="{{ url_for('auth.register') }}" class="btn btn-lg btn-primary me-2">Тіркелу</a>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-lg btn-outline-primary">Кіру</a>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Негізгі мүмкіндіктер</h2>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body text-center">
+            <i class="bi bi-upload display-4 text-primary mb-3"></i>
+            <h5 class="card-title">CSV жүктеу</h5>
+            <p class="card-text">Деректеріңізді оңай жүктеп, автоматты түрде өңдеңіз. Жүктелген файлдар жүйеде сақталады.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body text-center">
+            <i class="bi bi-bar-chart-line display-4 text-success mb-3"></i>
+            <h5 class="card-title">Аналитика және Графиктер</h5>
+            <p class="card-text">Нақты уақыттағы аналитика мен визуализация. Графиктер, болжамдар және трендтер бір жерде.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body text-center">
+            <i class="bi bi-gear display-4 text-warning mb-3"></i>
+            <h5 class="card-title">Модельдерді оқыту</h5>
+            <p class="card-text">SARIMA, экзогенді әдістер және басқа да алгоритмдерді қолдана отырып, модельдерді оқытыңыз және болжам жасаңыз.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section id="how-it-works" class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-4">Жұмыс принципі</h2>
+    <div class="row text-center">
+      <div class="col-md-3">
+        <div class="mb-3">
+          <i class="bi bi-1-circle display-4 text-primary"></i>
+        </div>
+        <h5>Файл жүктеу</h5>
+        <p>Өзіңіздің CSV файлыңызды таңдаңыз және жүйеге жүктеңіз.</p>
+      </div>
+      <div class="col-md-3">
+        <div class="mb-3">
+          <i class="bi bi-2-circle display-4 text-primary"></i>
+        </div>
+        <h5>Деректерді өңдеу</h5>
+        <p>Жүйе деректерді автоматты түрде тазалайды және өңдейді.</p>
+      </div>
+      <div class="col-md-3">
+        <div class="mb-3">
+          <i class="bi bi-3-circle display-4 text-primary"></i>
+        </div>
+        <h5>Модельді оқыту</h5>
+        <p>Модель параметрлерін баптап, оқытуды бастаңыз. Нәтижелерді нақты уақыт режимінде бақылаңыз.</p>
+      </div>
+      <div class="col-md-3">
+        <div class="mb-3">
+          <i class="bi bi-4-circle display-4 text-primary"></i>
+        </div>
+        <h5>Нәтижелер және аналитика</h5>
+        <p>Графиктер мен есептер арқылы шешім қабылдауға көмектесетін аналитикалық мәліметтер алыңыз.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section id="testimonial" class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Пайдаланушылар пікірлері</h2>
+    <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <div class="carousel-item active text-center">
+          <blockquote class="blockquote">
+            <p class="mb-0">«Бұл жүйе деректерімді талдауда үлкен көмек көрсетті. Нақты уақыттағы аналитика өте пайдалы!»</p>
+          </blockquote>
+          <footer class="blockquote-footer">Айдар, <cite title="Источник">Бизнес Иесі</cite></footer>
+        </div>
+        <div class="carousel-item text-center">
+          <blockquote class="blockquote">
+            <p class="mb-0">«Модельді оқыту және болжам жасау қарапайым әрі тиімді. Жүйенің интерфейсі қарапайым, бірақ функционалды.»</p>
+          </blockquote>
+          <footer class="blockquote-footer">Нұржан, <cite title="Источник">Аналитик</cite></footer>
+        </div>
+        <!-- Дополнительные отзывы можно добавить по необходимости -->
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Алдыңғы</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Келесі</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section id="faq" class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-4">Жиі қойылатын сұрақтар</h2>
+    <div class="accordion" id="faqAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqHeadingOne">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#faqCollapseOne" aria-expanded="true" aria-controls="faqCollapseOne">
+            Қалай CSV жүктеуге болады?
+          </button>
+        </h2>
+        <div id="faqCollapseOne" class="accordion-collapse collapse show" aria-labelledby="faqHeadingOne">
+          <div class="accordion-body">
+            CSV файлыңызды «CSV жүктеу» бөлімінен таңдаңыз және жіберіңіз. Жүйе деректерді автоматты түрде өңдейді.
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqHeadingTwo">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#faqCollapseTwo" aria-expanded="false" aria-controls="faqCollapseTwo">
+            Модельді қалай оқытуға болады?
+          </button>
+        </h2>
+        <div id="faqCollapseTwo" class="accordion-collapse collapse" aria-labelledby="faqHeadingTwo">
+          <div class="accordion-body">
+            «Модельді оқыту» бөлімінде деректерді жүктегеннен кейін қажетті параметрлерді енгізіп, модельді оқыту процесін бастаңыз.
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqHeadingThree">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#faqCollapseThree" aria-expanded="false" aria-controls="faqCollapseThree">
+            Нәтижелерді қалай көруге болады?
+          </button>
+        </h2>
+        <div id="faqCollapseThree" class="accordion-collapse collapse" aria-labelledby="faqHeadingThree">
+          <div class="accordion-body">
+            Тіркелген пайдаланушылар жүйеге кіріп, «Дашборд» бетінде графиктер, есептер және аналитикалық мәліметтерді көре алады.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="py-5">
+  <div class="container text-center">
+    <h2 class="mb-4">Бізбен байланысыңыз</h2>
+    <p>Кез келген сұрақтар, ұсыныстар немесе қолдау бойынша хабарласыңыз.</p>
+    <p><strong>Email:</strong> info@yourdomain.com</p>
+    <p><strong>Телефон:</strong> +7 777 123 4567</p>
+  </div>
+</section>
+
+{% endblock %}

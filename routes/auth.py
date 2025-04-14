@@ -1,11 +1,15 @@
+import random
 from urllib.parse import urlparse, urljoin
 
 import flask
 from flask import Blueprint, request, render_template, redirect, url_for, flash, session, abort, current_app
 from flask_login import login_user, logout_user, login_required, current_user
+from flask_mail import Message
 from werkzeug.security import generate_password_hash, check_password_hash
 from db.user_repo import get_user_by_email, create_user, get_all_users
 from db.models import db, User
+from helpers.login import admin_required
+from services.mail_manager import mail
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -28,14 +32,23 @@ def login():
             errors.append("Барлық өрістерді толтырыңыз.")
         else:
             user = get_user_by_email(db.session, email_value)
-            # Для отладки: проверьте, что user получен
-            print("Получен пользователь:", user)
             if user and check_password_hash(user.password_hash, password):
-                login_user(user, remember=True, force=True)
-                next_url = request.args.get('next')
-                if next_url and not is_safe_url(next_url):
-                    return abort(400)
-                return flask.redirect(next_url or flask.url_for('index.index'))
+                # Генерируем 2FA-код (например, 6-значный)
+                code = str(random.randint(100000, 999999))
+
+                # Сохраняем в сессии временно
+                session['2fa_user_id'] = user.id
+                session['2fa_code'] = code
+
+                # Отправляем email
+                msg = Message("Код подтверждения",
+                              sender="ваша_почта@gmail.com",
+                              recipients=[user.email])
+                msg.body = f"Ваш код: {code}"
+                mail.send(msg)
+
+                # Перенаправляем на страницу ввода кода
+                return redirect(url_for('auth.two_factor'))
             else:
                 errors.append("Қате пошта немесе құпия сөз.")
     return render_template('login.html', errors=errors, email=email_value)
@@ -73,6 +86,36 @@ def register():
 
         return redirect(url_for('index.index'))
     return render_template('register.html', errors=errors)
+
+
+@auth_bp.route('/2fa', methods=['GET', 'POST'])
+def two_factor():
+    if request.method == 'POST':
+        input_code = request.form.get('code', '')
+        saved_code = session.get('2fa_code', None)
+        user_id = session.get('2fa_user_id', None)
+        if not saved_code or not user_id:
+            flash("2FA сессиясы ескірді, қайта кіріп көріңіз.", "error")
+            return redirect(url_for('auth.login'))
+
+        if input_code == saved_code:
+            # Код верный, логиним
+            user = User.query.get(user_id)
+            if user:
+                login_user(user)
+                # очищаем код из сессии
+                session.pop('2fa_code', None)
+                session.pop('2fa_user_id', None)
+                # Делаем редирект на главную или куда нужно
+                return redirect(url_for('index.index'))
+            else:
+                flash("Пайдаланушы табылмады.", "error")
+                return redirect(url_for('auth.login'))
+        else:
+            flash("Код қате!", "error")
+            return redirect(url_for('auth.two_factor'))
+
+    return render_template('two_factor.html')
 
 
 @auth_bp.route('/logout')
@@ -137,3 +180,46 @@ def edit_profile():
                 errors.append("Профильді жаңартқанда қате орын алды!")
 
     return render_template('edit_profile.html', user=current_user, errors=errors)
+
+
+@auth_bp.route('/admin/users')
+@admin_required
+def admin_users():
+    all_users = User.query.all()
+    return render_template('admin_users.html', users=all_users)
+
+
+@auth_bp.route('/admin/users/change_role', methods=['POST'])
+@admin_required
+def admin_change_role():
+    user_id = request.form.get('user_id')
+    new_role = request.form.get('new_role')
+
+    user = User.query.get(user_id)
+    if not user:
+        flash("Пайдаланушы табылмады.", "error")
+        return redirect(url_for('auth.admin_users'))
+
+    user.role = new_role
+    db.session.commit()
+    flash(f"Роль изменена на {new_role} для {user.username}", "success")
+    return redirect(url_for('auth.admin_users'))
+
+
+@auth_bp.route('/admin/users/delete', methods=['POST'])
+@admin_required
+def admin_delete_user():
+    user_id = request.form.get('user_id')
+    user = User.query.get(user_id)
+    if not user:
+        flash("Пайдаланушы табылмады.", "error")
+        return redirect(url_for('auth.admin_users'))
+    if user.id == current_user.id:
+        flash("Невозможно удалить самого себя.", "error")
+        return redirect(url_for('auth.admin_users'))
+
+    db.session.delete(user)
+    db.session.commit()
+    flash(f"Пайдаланушы {user.username} жойылды.", "success")
+    return redirect(url_for('auth.admin_users'))
+

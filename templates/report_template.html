@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчёт</title>
+    <style>
+      body { font-family: DejaVu Sans, sans-serif; margin: 20px;}
+      h1, h2, h3 { color: #333; }
+      .metrics-table { border-collapse: collapse; }
+      .metrics-table th, .metrics-table td { border: 1px solid #ccc; padding: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Отчёт о моделировании</h1>
+    <p>Дата генерации: {{ generation_date }}</p>
+
+    <h2>Информация о модели</h2>
+    <ul>
+      <li><strong>Название модели:</strong> {{ model_name }}</li>
+      <li><strong>Параметры:</strong> {{ model_params }}</li>
+    </ul>
+
+    <h2>Метрики</h2>
+    <table class="metrics-table">
+      <tr>
+        <th>MSE</th>
+        <th>RMSE</th>
+        <th>MAE</th>
+        <th>MAPE</th>
+      </tr>
+      <tr>
+        <td>{{ mse }}</td>
+        <td>{{ rmse }}</td>
+        <td>{{ mae }}</td>
+        <td>{{ mape }} %</td>
+      </tr>
+    </table>
+
+    <h2>График прогноза</h2>
+    <img src="file://{{ plot_path }}" alt="Прогноз" style="max-width: 600px;">
+
+    <p>Примечание: Этот отчёт сгенерирован автоматически.</p>
+</body>
+</html>

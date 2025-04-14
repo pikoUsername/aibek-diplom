@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Сравнение моделей</h2>
+{% if message %}
+  <div class="alert alert-info">{{ message }}</div>
+{% endif %}
+<form method="POST">
+  <div class="mb-3">
+    <label>CSV-файл:</label>
+    <select name="csv_filename" class="form-select">
+      {% for df in data_files %}
+        <option value="{{ df }}">{{ df }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label>Столбец даты:</label>
+    <input type="text" name="date_col" class="form-control" value="Date">
+  </div>
+  <div class="mb-3">
+    <label>Столбец таргет:</label>
+    <input type="text" name="target_col" class="form-control" value="Sales">
+  </div>
+  <div class="mb-3">
+    <label>Test size:</label>
+    <input type="text" name="test_size" class="form-control" value="0.2">
+  </div>
+  <div class="mb-3">
+    <label>Модели (можно выбрать несколько):</label><br>
+    {% for mf in model_files %}
+      <input type="checkbox" name="models" value="{{ mf }}"> {{ mf }}<br>
+    {% endfor %}
+  </div>
+  <button class="btn btn-primary" type="submit">Сравнить</button>
+</form>
+
+{% if metrics_results %}
+  <hr>
+  <h4>Результаты:</h4>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Модель</th>
+        <th>MSE</th>
+        <th>RMSE</th>
+        <th>MAE</th>
+        <th>MAPE(%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in metrics_results %}
+      <tr>
+        <td>{{ row.model }}</td>
+        <td>{{ row.MSE }}</td>
+        <td>{{ row.RMSE }}</td>
+        <td>{{ row.MAE }}</td>
+        <td>{{ row.MAPE }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+{% endblock %}

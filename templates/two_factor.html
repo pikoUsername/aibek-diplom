@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>2FA Кодын енгізіңіз</h2>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, msg in messages %}
+      <div class="alert alert-{{category}}">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+<form method="POST">
+  <div class="mb-3">
+    <label for="code" class="form-label">Код:</label>
+    <input type="text" class="form-control" id="code" name="code" placeholder="6 таңбалы код" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Растау</button>
+</form>
+{% endblock %}
