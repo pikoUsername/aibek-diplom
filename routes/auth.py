@@ -42,7 +42,7 @@ def login():
 
                 # Отправляем email
                 msg = Message("Код подтверждения",
-                              sender="ваша_почта@gmail.com",
+                              sender=f"{current_app.config['MAIL_USERNAME']}@yandex.ru",
                               recipients=[user.email])
                 msg.body = f"Ваш код: {code}"
                 mail.send(msg)
@@ -52,7 +52,6 @@ def login():
             else:
                 errors.append("Қате пошта немесе құпия сөз.")
     return render_template('login.html', errors=errors, email=email_value)
-
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])

@@ -48,8 +48,8 @@ def index():
                           .all())
 
         # Если в POST (например, загрузка CSV) — оставляем исходную логику
-        if current_app.request.method == "POST":
-            file = current_app.request.files.get("file")
+        if request.method == "POST":
+            file = request.files.get("file")
             if file:
                 filename = file.filename
                 filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)

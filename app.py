@@ -29,6 +29,8 @@ def create_app():
     from routes.returns_predict import bp as returns_predict_bp
     from routes.transform import bp as transfer_data
     from routes.auth import auth_bp
+    from routes.compare_models import bp as compare_bp
+    from routes.generate_report import bp as report_bp
 
     register_error_handlers(app)
     app.register_blueprint(index_bp)
@@ -49,6 +51,8 @@ def create_app():
     app.register_blueprint(returns_train_bp)
     app.register_blueprint(returns_predict_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(compare_bp)
+    app.register_blueprint(report_bp)
 
     init_db(app)
     init_mail(app)

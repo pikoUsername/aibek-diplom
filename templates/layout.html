@@ -2,7 +2,7 @@
 <html lang="en" data-bs-theme="light">
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %} SARIMA App {% endblock %}</title>
+  <title>{% block title %} ForeMax App {% endblock %}</title>
   <!-- Bootstrap 5 -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
   <style>
@@ -17,106 +17,106 @@
   {% endblock %}
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+  <nav class="navbar navbar-expand-lg shadow">
     <div class="container-fluid">
-      <a class="navbar-brand" href="{{ url_for('index.index') }}">SARIMA App</a>
+      <a class="navbar-brand" href="{{ url_for('index.index') }}">ForeMax App</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
               data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown"
-              aria-expanded="false" aria-label="Toggle navigation">
+              aria-expanded="false" aria-label="Навигацияны ауыстыру">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNavDropdown">
-        <!-- Left side: Основные разделы -->
+        <!-- Сол жақ: Негізгі бөлімдер -->
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('index.index') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('index.index') }}">Басты бет</a>
           </li>
           {% if current_user.is_authenticated %}
-            <!-- Model Training dropdown -->
+            <!-- Модельді оқыту dropdown -->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="trainingDropdown" role="button"
-                 data-bs-toggle="dropdown" aria-expanded="false">Model Training</a>
+                 data-bs-toggle="dropdown" aria-expanded="false">Модельді оқыту</a>
               <ul class="dropdown-menu" aria-labelledby="trainingDropdown">
-                <li><a class="dropdown-item" href="{{ url_for('train.train') }}">General Training</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('sku_train.sku_train') }}">SKU Training</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('exog_train.exog_train') }}">Exogenous Training</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('returns_train.returns_train') }}">Returns Forecast</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('train.wizard_step1') }}">Step-by-step Training</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('train.train') }}">Жалпы оқыту</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('sku_train.sku_train') }}">SKU бойынша оқыту</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('exog_train.exog_train') }}">Экзогенді оқыту</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('returns_train.returns_train') }}">Қайтару болжамы</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('train.train') }}">Қадам-қадам оқыту</a></li>
               </ul>
             </li>
-            <!-- Forecast dropdown -->
+            <!-- Болжам dropdown -->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="forecastDropdown" role="button"
-                 data-bs-toggle="dropdown" aria-expanded="false">Forecast</a>
+                 data-bs-toggle="dropdown" aria-expanded="false">Болжам</a>
               <ul class="dropdown-menu" aria-labelledby="forecastDropdown">
-                <li><a class="dropdown-item" href="{{ url_for('predict.predict') }}">General Forecast</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('sku_predict.sku_predict') }}">SKU Forecast</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('exog_predict.exog_predict') }}">Exogenous Forecast</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('returns_predict.returns_predict') }}">Returns Forecast</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('predict.predict') }}">Жалпы болжам</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('sku_predict.sku_predict') }}">SKU бойынша болжам</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('exog_predict.exog_predict') }}">Экзогенді болжам</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('returns_predict.returns_predict') }}">Қайтару болжамы</a></li>
               </ul>
             </li>
-            <!-- Analytics & Reports dropdown -->
+            <!-- Аналитика және есептер dropdown -->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="analyticsDropdown" role="button"
-                 data-bs-toggle="dropdown" aria-expanded="false">Analytics & Reports</a>
+                 data-bs-toggle="dropdown" aria-expanded="false">Аналитика және есептер</a>
               <ul class="dropdown-menu" aria-labelledby="analyticsDropdown">
-                <li><a class="dropdown-item" href="{{ url_for('metrics.metrics') }}">Metrics</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('compare_models') }}">Compare Models</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('report.generate_report') }}">Generate PDF Report</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('report.generate_excel') }}">Generate Excel Report</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('metrics.metrics') }}">Көрсеткіштер</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('compare.compare_models') }}">Модельдерді салыстыру</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('report.generate_report') }}">PDF есеп шығару</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('report.generate_excel') }}">Excel есеп шығару</a></li>
               </ul>
             </li>
-            <!-- Data Management dropdown -->
+            <!-- Деректерді басқару dropdown -->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="dataDropdown" role="button"
-                 data-bs-toggle="dropdown" aria-expanded="false">Data Management</a>
+                 data-bs-toggle="dropdown" aria-expanded="false">Деректерді басқару</a>
               <ul class="dropdown-menu" aria-labelledby="dataDropdown">
-                <li><a class="dropdown-item" href="{{ url_for('upload.upload_script') }}">Upload Script</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('file_manager.file_manager') }}">File Manager</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('transform.transform_data') }}">Data Transformation</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('view_data.view_data') }}">View Data</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('upload.upload_script') }}">Сценарийді жүктеу</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('file_manager.file_manager') }}">Файл менеджері</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('transform.transform_data') }}">Деректерді түрлендіру</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('view_data.view_data') }}">Деректерді қарау</a></li>
               </ul>
             </li>
             <!-- FAQ -->
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('faq.faq') }}">FAQ</a>
+              <a class="nav-link" href="{{ url_for('index.faq') }}">Жиі қойылатын сұрақтар</a>
             </li>
-            <!-- Admin Panel (только для admin) -->
+            <!-- Әкімшілік панелі (тек әкімдер үшін) -->
             {% if current_user.role == 'admin' %}
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
-                   data-bs-toggle="dropdown" aria-expanded="false">Admin</a>
-                <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                  <li><a class="dropdown-item" href="{{ url_for('auth.admin_users') }}">Manage Users</a></li>
-                  <li><a class="dropdown-item" href="{{ url_for('auth.admin_logs') }}">System Logs</a></li>
-                </ul>
-              </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+                 data-bs-toggle="dropdown" aria-expanded="false">Әкімшілік</a>
+              <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('auth.admin_users') }}">Пайдаланушыларды басқару</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('auth.admin_logs') }}">Жүйе журналдары</a></li>
+              </ul>
+            </li>
             {% endif %}
           {% endif %}
         </ul>
 
-        <!-- Right side -->
+        <!-- Оң жақ: Тақырыпты ауыстыру, авторизация -->
         <ul class="navbar-nav ms-auto">
-          <!-- Toggle Theme Button -->
+          <!-- Тақырыпты ауыстыру батырмасы -->
           {% if current_user.is_authenticated %}
-            <li class="nav-item">
-              <button onclick="toggleTheme()" class="btn btn-outline-secondary me-2">Toggle Theme</button>
-            </li>
+          <li class="nav-item">
+            <button onclick="toggleTheme()" class="btn btn-outline-secondary me-2">Тақырыпты ауыстыру</button>
+          </li>
           {% endif %}
-          <!-- Authentication links -->
+          <!-- Аутентификация -->
           {% if current_user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('auth.profile') }}">Profile</a>
+              <a class="nav-link" href="{{ url_for('auth.profile') }}">Жеке кабинет</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+              <a class="nav-link" href="{{ url_for('auth.logout') }}">Шығу</a>
             </li>
           {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+              <a class="nav-link" href="{{ url_for('auth.login') }}">Кіру</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+              <a class="nav-link" href="{{ url_for('auth.register') }}">Тіркелу</a>
             </li>
           {% endif %}
         </ul>
@@ -124,12 +124,17 @@
     </div>
   </nav>
 
-
   <div class="container">
     {% block content %}
     {% endblock %}
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+  <!-- jQuery (Toastr требует jQuery) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <!-- Toastr JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+
   <script>
     // При загрузке страницы проверяем сохранённую тему и устанавливаем её
     document.addEventListener('DOMContentLoaded', function() {
@@ -140,6 +145,7 @@
     function toggleTheme() {
       const currentTheme = document.documentElement.getAttribute('data-bs-theme');
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', newTheme)
       document.documentElement.setAttribute('data-bs-theme', newTheme);
       updateNavbarTheme(newTheme);
     }
@@ -162,5 +168,33 @@
       return new bootstrap.Tooltip(tooltipTriggerEl)
     })
   </script>
+  <script>
+    $(document).ready(function() {
+      toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "timeOut": "5000"
+      };
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          {% if category == 'success' %}
+            toastr.success("{{ message|escapejs }}");
+          {% elif category == 'error' %}
+            toastr.error("{{ message|escapejs }}");
+          {% elif category == 'warning' %}
+            toastr.warning("{{ message|escapejs }}");
+          {% elif category == 'info' %}
+            toastr.info("{{ message|escapejs }}");
+          {% else %}
+            toastr.info("{{ message|escapejs }}");
+          {% endif %}
+        {% endfor %}
+      {% endwith %}
+    });
+  </script>
+
+  {% block scripts %} {% endblock %}
 </body>
 </html>
