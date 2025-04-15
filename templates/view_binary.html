@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3>{{ filename }}</h3>
+  <div class="alert alert-warning">
+    Бұл файл бинарлы және өңдеуге жарамды емес.
+  </div>
+  <a href="{{ url_for('file_manager.file_manager') }}" class="btn btn-secondary">Артқа қайту</a>
+  <a href="{{ url_for('static', filename='models/' ~ filename) }}" class="btn btn-info" download>Файлды жүктеу</a>
+</div>
+{% endblock %}

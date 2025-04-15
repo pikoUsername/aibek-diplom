@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3>{{ filename }} файлын қарау және өңдеу</h3>
+  <form id="saveFileForm">
+    <input type="hidden" name="file_type" value="{{ file_type }}">
+    <input type="hidden" name="filename" value="{{ filename }}">
+    <textarea id="editor" name="content" style="display:none;">{{ content|e }}</textarea>
+    {% if file_type in ["data", "script"] %}
+      <button type="button" id="saveBtn" class="btn btn-primary mt-3">Сақтау</button>
+    {% endif %}
+    <a href="{{ url_for('file_manager.file_manager') }}" class="btn btn-secondary mt-3">Артқа қайту</a>
+  </form>
+</div>
+
+<!-- CodeMirror CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/xml/xml.min.js"></script>
+<script>
+  var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+      mode: "{{ mode }}",
+      theme: "monokai",
+      lineNumbers: true,
+      viewportMargin: Infinity
+  });
+  editor.setSize("100%", "800px");
+
+  {% if file_type in ["data", "script"] %}
+  document.getElementById("saveBtn").addEventListener("click", function() {
+      editor.save();
+      var formData = new URLSearchParams({
+          "file_type": document.querySelector('input[name="file_type"]').value,
+          "filename": document.querySelector('input[name="filename"]').value,
+          "content": editor.getValue()
+      });
+      fetch("{{ url_for('file_manager.save_file') }}", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: formData
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error("Сервер қатесі");
+          }
+          return response.text();
+      })
+      .then(data => {
+          alert(data);
+      })
+      .catch(error => {
+          alert("Сақтау кезінде қате орын алды: " + error);
+      });
+  });
+  {% endif %}
+</script>
+{% endblock %}

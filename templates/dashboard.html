@@ -1,0 +1,126 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- Блок: Файлдарды жүктеу -->
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">CSV жүктеу</h5>
+      </div>
+      <div class="card-body">
+        {% if message %}
+          <div class="alert alert-info">{{ message }}</div>
+        {% endif %}
+        <form method="POST" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="file" class="form-label">CSV файлын таңдаңыз:</label>
+            <input class="form-control" type="file" name="file" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Жүктеу</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Блок: Жүйе туралы қысқаша түсінік -->
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h3>Жүйенің мүмкіндіктері</h3>
+        <ul>
+          <li>CSV файлдарды жүктеу және өңдеу</li>
+          <li>Модельдерді оқыту және болжау</li>
+          <li>Нақты уақыттағы аналитика және графиктер</li>
+          <li>Қателер мен журнал жазбалары</li>
+        </ul>
+        <p>Жүйе сіздің деректеріңізді автоматты түрде талдап, нәтижелерді визуализациялайды.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Блок: Метрикалар (карточкалар) -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card text-bg-primary">
+      <div class="card-body">
+        <h5 class="card-title">Обученные модели</h5>
+        <p class="card-text display-6">{{ metrics.models_count }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-bg-success">
+      <div class="card-body">
+        <h5 class="card-title">CSV-файлдар</h5>
+        <p class="card-text display-6">{{ metrics.csv_count }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-bg-warning">
+      <div class="card-body">
+        <h5 class="card-title">Болжамдар</h5>
+        <p class="card-text display-6">{{ metrics.forecasts_count }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-bg-danger">
+      <div class="card-body">
+        <h5 class="card-title">Қателер</h5>
+        <p class="card-text display-6">{{ metrics.errors_count }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Блок: Соңғы графиктер (Plot) -->
+<div class="card mb-4">
+  <div class="card-header bg-success text-white">
+    <h5 class="card-title mb-0">Соңғы графиктер</h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      {% for plot in recent_plots %}
+      <div class="col-md-6 mb-3">
+        <div class="card">
+          <img src="{{ url_for('static', filename='plots/' ~ plot.plot_filename) }}" class="card-img-top" alt="Plot">
+          <div class="card-body p-2">
+            <small class="text-muted">Жасалған: {{ plot.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% if recent_plots|length == 0 %}
+        <p class="text-muted">Графиктер жоқ.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Блок: Таймлайн соңғы әрекеттер (UserAction) -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="card-title mb-0">Соңғы әрекеттеріңіз</h5>
+  </div>
+  <div class="card-body">
+    {% if recent_actions %}
+      <div class="timeline" style="border-left: 2px solid #dee2e6; padding-left: 1rem;">
+        {% for action in recent_actions %}
+          <div class="timeline-item mb-3" style="position: relative;">
+            <div style="position: absolute; left: -9px; top: 0.5em; background-color: #0d6efd; width: 10px; height: 10px; border-radius: 50%;"></div>
+            <strong>{{ action.created_at.strftime('%d.%m.%Y %H:%M') }}</strong>
+            <span class="badge bg-info">{{ action.action_type }}</span>
+            <p class="mb-0">{{ action.description }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">Әрекеттер тіркелмеген.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

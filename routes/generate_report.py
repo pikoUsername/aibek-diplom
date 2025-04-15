@@ -1,11 +1,12 @@
 import os
 
+import openpyxl
 import pdfkit
 import datetime
 
 from flask import Blueprint, request, current_app, render_template, send_file
 
-bp = Blueprint("reports", __name__)
+bp = Blueprint("report", __name__)
 
 
 @bp.route("/generate_report", methods=["POST"])

@@ -1,53 +1,243 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Файлдар менеджері</h2>
+<div class="container mt-4">
+  <h2>Файлдар менеджері</h2>
 
-<!-- Блок: Data Files -->
-<h3>Data Files (./data)</h3>
-<ul>
-  {% for df in data_files %}
-    <li>
-      {{ df }}
-      <a href="{{ url_for('file_manager.delete_file', file_type='data', filename=df) }}"
-         class="btn btn-sm btn-danger">Жою</a>
+  <!-- Поиск -->
+  <form id="searchForm" method="GET" action="{{ url_for('file_manager.file_manager') }}" class="mb-3">
+    <div class="input-group">
+      <input type="text" name="query" class="form-control" placeholder="Файл атауы бойынша іздеу" value="{{ request.args.get('query', '') }}">
+      <button type="submit" class="btn btn-primary">Іздеу</button>
+    </div>
+  </form>
+
+  <!-- Кнопка Drag & Drop Жүктеу модалы -->
+  <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#uploadModal">
+    Файл жүктеу (Drag & Drop)
+  </button>
+
+  <!-- Вкладки -->
+  <ul class="nav nav-tabs" id="fileManagerTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="data-tab" data-bs-toggle="tab" data-bs-target="#data" type="button" role="tab" aria-controls="data" aria-selected="true">
+        Data Files
+      </button>
     </li>
-  {% endfor %}
-</ul>
-
-<!-- Блок: Model Files -->
-<h3>Model Files (./models)</h3>
-<ul>
-  {% for mf in model_files %}
-    <li>
-      {{ mf }}
-      <a href="{{ url_for('file_manager.delete_file', file_type='model', filename=mf) }}"
-         class="btn btn-sm btn-danger">Жою</a>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="model-tab" data-bs-toggle="tab" data-bs-target="#model" type="button" role="tab" aria-controls="model" aria-selected="false">
+        Model Files
+      </button>
     </li>
-  {% endfor %}
-</ul>
-
-<!-- Блок: Script Files -->
-<h3>Script Files (./scripts)</h3>
-<ul>
-  {% for sf in script_files %}
-    <li>
-      {{ sf }}
-      <a href="{{ url_for('file_manager.delete_file', file_type='script', filename=sf) }}"
-         class="btn btn-sm btn-danger">Жою</a>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="script-tab" data-bs-toggle="tab" data-bs-target="#script" type="button" role="tab" aria-controls="script" aria-selected="false">
+        Script Files
+      </button>
     </li>
-  {% endfor %}
-</ul>
-
-<!-- Блок: Plot Files -->
-<h3>Plot Files (./static/plots)</h3>
-<ul>
-  {% for pf in plot_files %}
-    <li>
-      {{ pf }}
-      <a href="{{ url_for('file_manager.delete_file', file_type='plot', filename=pf) }}"
-         class="btn btn-sm btn-danger">Жою</a>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="plot-tab" data-bs-toggle="tab" data-bs-target="#plot" type="button" role="tab" aria-controls="plot" aria-selected="false">
+        Plot Files
+      </button>
     </li>
-  {% endfor %}
-</ul>
+  </ul>
 
+  <div class="tab-content mt-3" id="fileManagerContent">
+
+    <!-- Data Files -->
+    <div class="tab-pane fade show active" id="data" role="tabpanel" aria-labelledby="data-tab">
+      {% if data_files|length > 0 %}
+      <div class="list-group">
+        {% for df in data_files %}
+          <div class="list-group-item d-flex justify-content-between align-items-center">
+            <span>{{ df }}</span>
+            <div>
+              <a href="{{ url_for('file_manager.view_file', file_type='data', filename=df) }}" class="btn btn-sm btn-info me-2" target="_blank">Көру</a>
+              <button class="btn btn-sm btn-warning me-2 renameBtn" data-file-type="data" data-filename="{{ df }}">Атауын өзгерту</button>
+              <a href="{{ url_for('file_manager.delete_file', file_type='data', filename=df) }}" class="btn btn-sm btn-danger">Жою</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {% else %}
+        <p class="text-muted">Data файлы табылған жоқ.</p>
+      {% endif %}
+    </div>
+
+    <!-- Model Files -->
+    <div class="tab-pane fade" id="model" role="tabpanel" aria-labelledby="model-tab">
+      {% if model_files|length > 0 %}
+      <div class="list-group">
+        {% for mf in model_files %}
+          <div class="list-group-item d-flex justify-content-between align-items-center">
+            <span>{{ mf }}</span>
+            <div>
+              <a href="{{ url_for('file_manager.view_file', file_type='model', filename=mf) }}" class="btn btn-sm btn-info me-2" target="_blank">Көру</a>
+              <a href="{{ url_for('file_manager.delete_file', file_type='model', filename=mf) }}" class="btn btn-sm btn-danger">Жою</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {% else %}
+        <p class="text-muted">Model файлы табылған жоқ.</p>
+      {% endif %}
+    </div>
+
+    <!-- Script Files -->
+    <div class="tab-pane fade" id="script" role="tabpanel" aria-labelledby="script-tab">
+      {% if script_files|length > 0 %}
+      <div class="list-group">
+        {% for sf in script_files %}
+          <div class="list-group-item d-flex justify-content-between align-items-center">
+            <span>{{ sf }}</span>
+            <div>
+              <a href="{{ url_for('file_manager.view_file', file_type='script', filename=sf) }}" class="btn btn-sm btn-info me-2" target="_blank">Көру</a>
+              <button class="btn btn-sm btn-warning me-2 renameBtn" data-file-type="script" data-filename="{{ sf }}">Атауын өзгерту</button>
+              <a href="{{ url_for('file_manager.delete_file', file_type='script', filename=sf) }}" class="btn btn-sm btn-danger">Жою</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {% else %}
+        <p class="text-muted">Script файлы табылған жоқ.</p>
+      {% endif %}
+    </div>
+
+    <!-- Plot Files -->
+    <div class="tab-pane fade" id="plot" role="tabpanel" aria-labelledby="plot-tab">
+      {% if plot_files|length > 0 %}
+      <div class="row">
+        {% for pf in plot_files %}
+          <div class="col-md-4 mb-3">
+            <div class="card">
+              <img src="{{ url_for('static', filename='plots/' ~ pf) }}" class="card-img-top" alt="Plot">
+              <div class="card-body p-2">
+                <p class="card-text small">{{ pf }}</p>
+                <div class="d-flex justify-content-between">
+                  <a href="{{ url_for('file_manager.view_file', file_type='plot', filename=pf) }}" class="btn btn-sm btn-info" target="_blank">Көру</a>
+                  <button class="btn btn-sm btn-warning renameBtn" data-file-type="plot" data-filename="{{ pf }}">Атауын өзгерту</button>
+                  <a href="{{ url_for('file_manager.delete_file', file_type='plot', filename=pf) }}" class="btn btn-sm btn-danger">Жою</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {% else %}
+        <p class="text-muted">Plot файлы табылған жоқ.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal: Rename File -->
+<div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="renameForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="renameModalLabel">Файл атын өзгерту</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Жабу"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="rename_file_type" name="file_type">
+          <input type="hidden" id="rename_filename" name="old_filename">
+          <div class="mb-3">
+            <label for="new_filename" class="form-label">Жаңа атау</label>
+            <input type="text" class="form-control" id="new_filename" name="new_filename" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Сақтау</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Жабу</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Drag & Drop File Upload -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form id="uploadForm" method="POST" enctype="multipart/form-data" action="{{ url_for('file_manager.save_file') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadModalLabel">Файлды жүктеу (Drag & Drop)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Жабу"></button>
+        </div>
+        <div class="modal-body">
+          <div id="dropZone" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
+            Файлды осында тастаңыз немесе басыңыз да, таңдаңыз.
+            <input type="file" id="uploadFileInput" name="file" style="display:none;">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Жүктеу</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Жабу</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Rename modal: открыть и заполнить данные
+  document.querySelectorAll('.renameBtn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+          var fileType = this.getAttribute('data-file-type');
+          var oldFilename = this.getAttribute('data-filename');
+          document.getElementById('rename_file_type').value = fileType;
+          document.getElementById('rename_filename').value = oldFilename;
+          document.getElementById('new_filename').value = oldFilename;
+          var renameModal = new bootstrap.Modal(document.getElementById('renameModal'));
+          renameModal.show();
+      });
+  });
+
+  // Обработчик формы переименования
+  document.getElementById('renameForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var formData = new URLSearchParams(new FormData(this));
+      fetch("{{ url_for('file_manager.rename_file') }}", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+          alert(data);
+          location.reload();
+      })
+      .catch(error => {
+          alert("Переименование қатесі: " + error);
+      });
+  });
+
+  // Drag & Drop Upload Modal
+  var dropZone = document.getElementById('dropZone');
+  var uploadInput = document.getElementById('uploadFileInput');
+
+  dropZone.addEventListener('click', function() {
+      uploadInput.click();
+  });
+
+  dropZone.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      dropZone.style.backgroundColor = "#f0f0f0";
+  });
+
+  dropZone.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      dropZone.style.backgroundColor = "";
+  });
+
+  dropZone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      dropZone.style.backgroundColor = "";
+      if (e.dataTransfer.files.length) {
+          uploadInput.files = e.dataTransfer.files;
+      }
+  });
+</script>
 {% endblock %}
