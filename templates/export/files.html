@@ -1,0 +1,82 @@
+{# templates/export/files.html #}
+{% extends 'layout.html' %}
+
+{% block title %}CSV файлдар тізімі{% endblock %}
+
+{% block content %}
+  <h1 class="text-3xl font-bold mb-6">CSV файлдар тізімі</h1>
+
+  {# Flash-хабарламалар #}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="space-y-2 mb-4">
+        {% for category, msg in messages %}
+          <div class="alert
+                      {% if category == 'error' %}alert-error{% elif category == 'success' %}alert-success{% else %}alert-info{% endif %}">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {# Поле поиска по ключевым словам #}
+  <div class="mb-4">
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Кілтсөз бойынша іздеу..."
+      class="input input-bordered w-full max-w-md"
+    />
+  </div>
+
+  {# Таблица со списком .csv-файлов #}
+  <div class="overflow-x-auto">
+    <table class="table table-zebra w-full">
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>Файл аты</th>
+          <th class="text-center">Экспорт</th>
+        </tr>
+      </thead>
+      <tbody id="filesTableBody">
+        {% if files %}
+          {% for idx, fname in enumerate(files, start=1) %}
+            <tr data-filename="{{ fname | lower }}">
+              <td>{{ idx }}</td>
+              <td>{{ fname }}</td>
+              <td class="text-center space-x-2">
+                <a
+                  href="{{ url_for('export.export_excel', filename=fname) }}"
+                  class="btn btn-sm btn-success"
+                  title="Excel-ға экспорттау"
+                >Excel</a>
+                <a
+                  href="{{ url_for('export.export_pdf', filename=fname) }}"
+                  class="btn btn-sm btn-primary"
+                  title="PDF-ке экспорттау"
+                >PDF</a>
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="3" class="text-center py-4">Файлдар табылған жоқ.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  {# Скрипт для живого поиска #}
+  <script>
+    document.getElementById('searchInput').addEventListener('input', function() {
+      const q = this.value.trim().toLowerCase();
+      document.querySelectorAll('#filesTableBody tr').forEach(row => {
+        const name = row.getAttribute('data-filename');
+        row.style.display = (!q || name.includes(q)) ? '' : 'none';
+      });
+    });
+  </script>
+{% endblock %}

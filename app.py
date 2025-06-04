@@ -2,6 +2,8 @@ from flask import Flask
 from config import Config
 from db.models import db, init_db
 from routes.error_handlers import register_error_handlers
+from routes.export_bp import export_bp
+from services.filters import escapejs_filter
 from services.login_manager import init_login_manager
 from services.mail_manager import init_mail
 
@@ -10,6 +12,8 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     app.secret_key = "sos"
+
+    app.add_template_filter(escapejs_filter, "escapejs")
 
     from routes.index import bp as index_bp
     from routes.train import bp as train_bp
@@ -34,6 +38,7 @@ def create_app():
 
     register_error_handlers(app)
     app.register_blueprint(index_bp)
+    app.register_blueprint(export_bp)
     app.register_blueprint(transfer_data)
     app.register_blueprint(data_bp)
     app.register_blueprint(train_bp)

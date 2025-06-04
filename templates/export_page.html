@@ -1,0 +1,82 @@
+{# templates/export_page.html #}
+{% extends "layout.html" %}
+
+{% block title %}CSV → Excel / PDF{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+  <h1 class="text-3xl font-bold mb-6">CSV файлдарды Export ету</h1>
+
+  {# Flash-хабарламалар #}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="space-y-2 mb-4">
+        {% for category, msg in messages %}
+          <div
+            class="alert
+              {% if category == 'error' %}alert-error{% elif category == 'success' %}alert-success{% else %}alert-info{% endif %}"
+          >
+            {{ msg }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {# Форма іздеу үшін (GET-параметр query) #}
+  <form method="GET" action="{{ url_for('export.export_page') }}" class="mb-4">
+    <div class="flex space-x-2">
+      <input
+        type="text"
+        name="query"
+        placeholder="Кілтсөз бойынша іздеу..."
+        value="{{ query }}"
+        class="input input-bordered w-full max-w-md"
+      />
+      <button type="submit" class="btn btn-primary">Іздеу</button>
+      <a href="{{ url_for('export.export_page') }}" class="btn btn-ghost">Барлығын көрсету</a>
+    </div>
+  </form>
+
+  {% if data_files | length == 0 %}
+    <p class="text-gray-500">CSV файлдар табылған жоқ.</p>
+  {% else %}
+    <div class="overflow-x-auto">
+      <table class="table table-zebra w-full">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Файл аты</th>
+            <th class="text-center">Export Excel</th>
+            <th class="text-center">Export PDF</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fname in data_files %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ fname }}</td>
+            <td class="text-center">
+              <a
+                href="{{ url_for('export.export_excel', filename=fname) }}"
+                class="btn btn-sm btn-success"
+              >
+                Excel
+              </a>
+            </td>
+            <td class="text-center">
+              <a
+                href="{{ url_for('export.export_pdf', filename=fname) }}"
+                class="btn btn-sm btn-primary"
+              >
+                PDF
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

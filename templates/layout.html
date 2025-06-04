@@ -62,8 +62,12 @@
               <ul class="dropdown-menu" aria-labelledby="analyticsDropdown">
                 <li><a class="dropdown-item" href="{{ url_for('metrics.metrics') }}">Көрсеткіштер</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('compare.compare_models') }}">Модельдерді салыстыру</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('report.generate_report') }}">PDF есеп шығару</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('report.generate_excel') }}">Excel есеп шығару</a></li>
+                <li>
+                  <a class="dropdown-item"
+                     href="{{ url_for('export.export_excel', filename='your_data.csv') }}">
+                    Excel есеп шығару
+                  </a>
+                </li>
               </ul>
             </li>
             <!-- Деректерді басқару dropdown -->
